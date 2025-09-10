@@ -86,23 +86,23 @@ Critérios de aceite:
 
 #### Usuario
 
-| Campo       | Tipo     | Obrigatório | Exemplo           |
-|-------------|----------|-------------|-------------------|
-| id          | número   | sim         | 1                 |
-| nome        | texto    | sim         | "Ana Souza"       |
-| email       | texto    | sim (único) | "ana@exemplo.com" |
-| senha_hash  | texto    | sim         | "$2a$10$..."      |
-| fotoPerfil  | texto    | não         | "ana.png"         |
-| dataCriacao | data/hora| sim         | 2025-08-20 14:30  |
+| Campo         | Tipo     | Obrigatório | Exemplo            |
+|---------------|----------|-------------|--------------------|
+| id            | número   | sim         | 1                  |
+| nome          | texto    | sim         | "Mano corbas"      |
+| email         | texto    | sim (único) | "vini@exemplo.com" |
+| senha_hash    | texto    | sim         | "$2a$10$..."       |
+| foto_perfil   | texto    | não         | "vini.png"         |
+| data_criacao  | data/hora| sim         | 2025-08-20 14:30   |
 
 #### Post
 
-| Campo       | Tipo        | Obrigatório | Exemplo               |
-|-------------|-------------|-------------|-----------------------|
-| id          | número      | sim         | 2                     |
-| usuario_id  | número (fk) | sim         | 1                     |
-| texto       | texto       | sim         | "Estudando Java hoje" |
-| dataCriacao | data/hora   | sim         | 2025-08-20 14:35      |
+| Campo        | Tipo        | Obrigatório | Exemplo               |
+|--------------|-------------|-------------|-----------------------|
+| id           | número      | sim         | 2                     |
+| usuario_id   | número (fk) | sim         | 1                     |
+| texto        | texto       | sim         | "Estudando Java hoje" |
+| data_criacao | data/hora   | sim         | 2025-08-20 14:35      |
 
 #### Seguidor
 
@@ -114,16 +114,104 @@ Critérios de aceite:
 
 #### FraseAnonima
 
-| Campo        | Tipo      | Obrigatório | Exemplo                   |
-|--------------|-----------|-------------|---------------------------|
-| id           | número    | sim         | 50                        |
-| texto        | texto     | sim         | "Força que vai dar certo" |
-| dataCriacao  | data/hora | sim         | 2025-08-20 15:00          |
-| dataExpiracao| data/hora | sim         | 2025-08-21 15:00          |
+| Campo          | Tipo      | Obrigatório | Exemplo               |
+|----------------|-----------|-------------|-----------------------|
+| id             | número    | sim         | 50                    |
+| texto          | texto     | sim         | "Só sei que nada sei" |
+| data_criacao   | data/hora | sim         | 2025-08-20 15:00      |
+| data_expiracao | data/hora | sim         | 2025-08-21 15:00      |
 
 ### 9.3 Relações entre entidades
 
 - Um Usuario tem muitos Posts (1→N).  
 - Um Post pertence a um Usuario (N→1).  
 - Um Usuario pode seguir muitos outros (N→N via Seguidor).  
-- Uma FraseAnonima pertence apenas ao sistema (não ao usuário visível).  
+- Para manter o anonimato do usuário, FraseAnonima não se relaciona com outras entidades.  
+
+### 9.4 Modelagem no PostgreSQL
+
+```sql
+--  -> DDL
+-- ======================
+-- Tabela: Usuario
+-- ======================
+CREATE TABLE IF NOT EXISTS usuario (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    foto_perfil VARCHAR(255),
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ======================
+-- Tabela: Post
+-- ======================
+CREATE TABLE IF NOT EXISTS post (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    texto VARCHAR(280) NOT NULL,
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ======================
+-- Tabela: Seguidor
+-- ======================
+CREATE TABLE IF NOT EXISTS seguidor (
+    id SERIAL PRIMARY KEY,
+    seguidor_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    seguido_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    CONSTRAINT uq_seguidor UNIQUE(seguidor_id, seguido_id),
+    CONSTRAINT chk_self_follow CHECK (seguidor_id <> seguido_id)
+);
+
+-- ======================
+-- Tabela: FraseAnonima
+-- ======================
+CREATE TABLE IF NOT EXISTS frase_anonima (
+    id SERIAL PRIMARY KEY,
+    texto VARCHAR(280) NOT NULL,
+    data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_expiracao TIMESTAMP NOT NULL
+);
+
+-- -> Inserções de Teste
+-- primeiro usuario
+INSERT INTO public.usuario(
+	nome, email, senha_hash, foto_perfil, data_criacao)
+	VALUES ('Mano corbas', 'vini@exemplo.com', '$2a$10$...', 'vini.png', '2025-09-09 21:12');
+
+-- segundo usuario
+INSERT INTO public.usuario(
+	nome, email, senha_hash, foto_perfil, data_criacao)
+	VALUES ('Mano corbas2', 'vini2@exemplo.com', '$2a$10$...2', 'vini2.png', '2025-09-09 21:22');
+
+-- Usuario 2 agora segue o usuario 1
+INSERT INTO public.seguidor(
+	seguidor_id, seguido_id)
+	VALUES (2, 1);
+
+-- primeiro post
+INSERT INTO public.post(
+	usuario_id, texto, data_criacao)
+	VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
+
+-- frase anonima
+INSERT INTO public.frase_anonima(
+	texto, data_criacao, data_expiracao)
+	VALUES ('So sei que nada sei', NOW(), '2026-01-01');
+	
+-- TESTE:
+-- retorna o nome e todos os posts de
+-- todos os seguidores do usuario com id = 1 
+SELECT 
+	u.nome, 
+	p.texto 
+FROM usuario u
+JOIN post p 
+	ON u.id = p.usuario_id
+JOIN seguidor s
+	ON u.id = s.seguidor_id
+WHERE s.seguido_id = 1;
+```
+> Obs: Esse exemplo de criação das tabelas não reflete plenamente o estado da DATABASE. Se você deseja analisar com mais profundidade funções, SPs e INDEXes, leia o sql em src/main/resources/ddl.sql
