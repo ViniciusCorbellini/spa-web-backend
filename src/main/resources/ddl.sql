@@ -56,3 +56,28 @@ CREATE INDEX IF NOT EXISTS idx_frase_expiracao ON frase_anonima(data_expiracao);
 --    WHERE data_expiracao < NOW();
 -- END;
 -- $$ LANGUAGE plpgsql;
+
+-- primeiro usuario
+INSERT INTO public.usuario(
+	nome, email, senha_hash, foto_perfil, data_criacao)
+	VALUES ('Mano corbas', 'vini@exemplo.com', '$2a$10$...', 'vini.png', '2025-09-09 21:12');
+
+-- segundo usuario
+INSERT INTO public.usuario(
+	nome, email, senha_hash, foto_perfil, data_criacao)
+	VALUES ('Mano corbas2', 'vini2@exemplo.com', '$2a$10$...2', 'vini2.png', '2025-09-09 21:22');
+
+-- Usuario 2 agora segue o usuario 1
+INSERT INTO public.seguidor(
+	seguidor_id, seguido_id)
+	VALUES (2, 1);
+
+-- primeiro post
+INSERT INTO public.post(
+	usuario_id, texto, data_criacao)
+	VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
+
+-- frase anonima
+INSERT INTO public.frase_anonima(
+	texto, data_criacao, data_expiracao)
+	VALUES ('So sei que nada sei', NOW(), '2026-01-01');
