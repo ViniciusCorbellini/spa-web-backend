@@ -70,9 +70,12 @@ Critérios de aceite:
 **Hospedagem:** container Docker
 
 ### 8.3 Back-end (API/servidor, se existir)
-**Back-end (API):** Spring Boot (Java)
-**Banco de dados:** PostgreSQL
-**Deploy do back-end:** ambos rodando em containers Docker (API + banco)
+- **Back-end (API):** Spring Boot (Java 21)
+- **Banco de dados:** PostgreSQL (17.6)
+- **Acesso ao BD:** Spring Data JPA (Hibernate)
+- **Migrações do Banco de Dados:** Liquibase
+- **Segurança:** Spring Security com autenticação via Token JWT
+- **Deploy do back-end:** ambos rodando em containers Docker (API + banco)
 
 ## 9) Plano de Dados
 
@@ -214,4 +217,46 @@ JOIN seguidor s
 	ON u.id = s.seguidor_id
 WHERE s.seguido_id = 1;
 ```
-> Obs: Esse exemplo de criação das tabelas não reflete plenamente o estado da DATABASE. Se você deseja analisar com mais profundidade funções, SPs e INDEXes, leia o sql em src/main/resources/ddl.sql
+> Obs: Esse exemplo de criação das tabelas não reflete plenamente o estado da DATABASE. 
+> Se você deseja analisar com mais profundidade funções, SPs e INDEXes, leia as migrations 
+> e seeds em src/main/resources/db/changelog/
+
+## 10) Instalação e Execução
+
+### 10.1 Dependências
+Antes de rodar, certifique-se de ter instalado:
+- **Java 21+**
+- **Maven**
+- **PostgreSQL** (se não usar Docker)
+- **Git**
+
+### 10.2 Clonar o repositório
+```bash
+git clone https://github.com/seu-usuario/microtx.git
+cd microtx
+```
+
+### 10.3 Banco de dados
+Crie o banco no PostgreSQL:
+```bash
+CREATE DATABASE microtx;
+```
+> Usuário e senha devem estar configurados no .env com base no .env.example na raiz do repositório
+
+### 10.4 Backend
+
+#### 10.4.1 Build do projeto
+Compila, roda os testes e gera o pacote `.jar`:
+```bash
+./mvnw clean install
+```
+
+#### 10.4.2 Executar a aplicação
+Rodar direto com spring boot
+```bash
+.\mvnw spring-boot:run
+```
+Ou, se preferir executar o .jar já gerado:
+```bash
+java -jar target/microtx-0.0.1-SNAPSHOT.jar
+```
