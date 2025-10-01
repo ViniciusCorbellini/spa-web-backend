@@ -7,7 +7,6 @@ import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 import com.manocorbas.dev_web_backend.security.JwtService;
 import com.manocorbas.dev_web_backend.services.UsuarioService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
