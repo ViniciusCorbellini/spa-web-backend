@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@DependsOn("flywayInitializer") //
 public class ApplicationConfig {
 
     private final UserDetailsService userDetailsService;

@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@DependsOn("flywayInitializer")
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
