@@ -2,12 +2,16 @@ package com.manocorbas.dev_web_backend.controllers;
 
 import com.manocorbas.dev_web_backend.models.FraseAnonima;
 import com.manocorbas.dev_web_backend.services.FraseAnonimaService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Hidden;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Hidden
 @RestController
 @RequestMapping("/frases")
 public class FraseAnonimaController {

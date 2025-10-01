@@ -3,6 +3,7 @@ package com.manocorbas.dev_web_backend.controllers;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.services.UsuarioService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    @Operation(hidden = true)
     @PostMapping
     public ResponseEntity<?> criarUsuario(@RequestBody Usuario usuario) {
         try {

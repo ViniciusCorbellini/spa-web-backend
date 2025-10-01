@@ -3,7 +3,6 @@ package com.manocorbas.dev_web_backend.config;
 import com.manocorbas.dev_web_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,14 +26,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        // Definindo as rotas públicas que devem ser acessíveis
+        // As rotas do Swagger (OpenAPI) e /health devem ser permitidas.
+        String[] publicEndpoints = {
+                // Rotas do Swagger UI
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                // Outros Endpoints Públicos
+                "/health",
+                "/auth/**"
+        };
+
         return http
-                .csrf(AbstractHttpConfigurer::disable) // desabilita CSRF
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // login e register abertos
-                        .anyRequest().authenticated()
+                        .requestMatchers(publicEndpoints).permitAll() // <-- Permite as rotas públicas
+                        .anyRequest().authenticated() // <-- Todas as outras requerem autenticação
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // stateless
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

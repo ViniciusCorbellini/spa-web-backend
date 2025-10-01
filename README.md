@@ -232,14 +232,14 @@ Antes de rodar, certifique-se de ter instalado:
 
 ### 10.2 Clonar o repositório
 ```bash
-git clone https://github.com/seu-usuario/microtx.git
-cd microtx
+git clone https://github.com/ViniciusCorbellini/spa-web-backend.git
+cd spa-web-backend
 ```
 
 ### 10.3 Banco de dados
 Crie o banco no PostgreSQL:
 ```bash
-CREATE DATABASE microtx;
+CREATE DATABASE dev_web;
 ```
 > Usuário e senha devem estar configurados no .env com base no .env.example na raiz do repositório
 
@@ -248,7 +248,7 @@ CREATE DATABASE microtx;
 #### 10.4.1 Build do projeto
 Compila, roda os testes e gera o pacote `.jar`:
 ```bash
-./mvnw clean install
+.\mvnw clean install
 ```
 
 #### 10.4.2 Executar a aplicação
@@ -259,4 +259,10 @@ Rodar direto com spring boot
 Ou, se preferir executar o .jar já gerado:
 ```bash
 java -jar target/microtx-0.0.1-SNAPSHOT.jar
+```
+
+### 10.5 Documentação 
+Se tudo ocorrer corretamente, você poderá acessar a documentação da api em 
+```
+http://localhost:8080/swagger-ui.html
 ```
