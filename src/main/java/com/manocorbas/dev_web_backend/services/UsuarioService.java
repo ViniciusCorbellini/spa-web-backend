@@ -22,7 +22,7 @@ public class UsuarioService {
         if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
             throw new IllegalArgumentException("Email não pode ser vazio");
         }
-        if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email já está em uso");
         }
         return usuarioRepository.save(usuario);
@@ -36,7 +36,7 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-    public Usuario buscarPorEmail(String email) {
+    public Optional<Usuario> buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
 

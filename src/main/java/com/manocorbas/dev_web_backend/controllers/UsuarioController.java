@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -42,8 +43,8 @@ public class UsuarioController {
 
     @GetMapping("/email")
     public ResponseEntity<?> buscarPorEmail(@RequestParam String email) {
-        Usuario usuario = usuarioService.buscarPorEmail(email);
-        if (usuario != null) {
+        Optional<Usuario> usuario = usuarioService.buscarPorEmail(email);
+        if (usuario.isPresent()) {
             return ResponseEntity.ok(usuario);
         } else {
             return ResponseEntity.notFound().build();
