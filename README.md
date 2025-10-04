@@ -252,13 +252,9 @@ Compila, roda os testes e gera o pacote `.jar`:
 ```
 
 #### 10.4.2 Executar a aplicação
-Rodar direto com spring boot
+Rodar com spring boot
 ```bash
 .\mvnw spring-boot:run
-```
-Ou, se preferir executar o .jar já gerado:
-```bash
-java -jar target/microtx-0.0.1-SNAPSHOT.jar
 ```
 
 ### 10.5 Documentação 

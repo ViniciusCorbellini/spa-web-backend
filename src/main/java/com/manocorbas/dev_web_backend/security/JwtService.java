@@ -2,14 +2,13 @@ package com.manocorbas.dev_web_backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -27,15 +26,14 @@ public class JwtService {
     private long jwtExpiration;
 
     public String generateToken(UserDetails userDetails) {
-        // Define a expiração como um dia (ou o valor configurado em application.properties)
         Instant now = Instant.now();
         Instant expiration = now.plus(jwtExpiration, ChronoUnit.MILLIS);
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(expiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .subject(userDetails.getUsername())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(getSignInKey())
                 .compact();
     }
 
@@ -49,12 +47,12 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        // Uso da nova API do JJWT: Jwts.parser()
-        return Jwts.parser()
-                .setSigningKey(getSignInKey()) // Configura a chave de assinatura
-                .build() // Constrói o parser
-                .parseClaimsJws(token) // Faz o parse do token. Se for inválido/expirado, lança uma exceção.
-                .getBody();
+        // CORREÇÃO: Jwts.parser() agora retorna o Builder.
+        return Jwts.parser() // 1. Retorna o JwtParserBuilder
+                .verifyWith(getSignInKey()) // 2. NOVO MÉTODO: verifyWith() para a chave
+                .build() // 3. Constrói o parser
+                .parseSignedClaims(token) // 4. NOVO MÉTODO: parseSignedClaims()
+                .getPayload(); // 5. NOVO MÉTODO: getPayload()
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -70,9 +68,7 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Key getSignInKey() {
-        // O secretKey deve ser uma string Base64.
-        // Decoders.BASE64.decode(secretKey) lida com isso.
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
