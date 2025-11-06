@@ -46,7 +46,7 @@ public class AuthController {
         usuarioService.criarUsuario(user);
 
         String token = jwtService.generateToken(new CustomUserDetails(user));
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(user, token));
     }
 
     @PostMapping("/login")
@@ -59,7 +59,7 @@ public class AuthController {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         String token = jwtService.generateToken(new CustomUserDetails(user));
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(user, token));
     }
 }
 

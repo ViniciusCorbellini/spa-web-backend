@@ -1,4 +1,6 @@
 package com.manocorbas.dev_web_backend.dtos;
 
-public record AuthResponse (String token){
+import com.manocorbas.dev_web_backend.models.Usuario;
+
+public record AuthResponse (Usuario user, String token){
 }
