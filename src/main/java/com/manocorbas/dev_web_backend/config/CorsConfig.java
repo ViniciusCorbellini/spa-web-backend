@@ -17,6 +17,7 @@ public class CorsConfig {
                         .allowedOrigins("http://localhost:5173") // A origem do seu front-end
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
                         .allowedHeaders("*") // Permite todos os cabeçalhos
+                        .exposedHeaders("Authorization")
                         .allowCredentials(true); // Permite envio de cookies (se necessário)
             }
         };

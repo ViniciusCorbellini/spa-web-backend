@@ -47,16 +47,15 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        // CORREÇÃO: Jwts.parser() agora retorna o Builder.
         return Jwts.parser() // 1. Retorna o JwtParserBuilder
-                .verifyWith(getSignInKey()) // 2. NOVO MÉTODO: verifyWith() para a chave
+                .verifyWith(getSignInKey()) // 2. verifyWith() para a chave
                 .build() // 3. Constrói o parser
                 .parseSignedClaims(token) // 4. NOVO MÉTODO: parseSignedClaims()
                 .getPayload(); // 5. NOVO MÉTODO: getPayload()
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
+        String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 

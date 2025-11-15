@@ -26,10 +26,7 @@ public class ApplicationConfig {
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        // Informa onde buscar os detalhes do usuário
-        authProvider.setUserDetailsService(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
 
         // Informa qual codificador de senha usar
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -39,7 +36,7 @@ public class ApplicationConfig {
 
     /**
      * Define o gerenciador de autenticação.
-     * Usado no seu controlador para autenticar usuários.
+     * Usado no controlador para autenticar usuários.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
