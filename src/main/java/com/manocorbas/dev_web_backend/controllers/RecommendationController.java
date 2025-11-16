@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.manocorbas.dev_web_backend.dtos.PostResponseDto;
 import com.manocorbas.dev_web_backend.models.Post;
 import com.manocorbas.dev_web_backend.models.Usuario;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 import com.manocorbas.dev_web_backend.services.RecommendationService;
 
 @RestController
@@ -25,15 +27,16 @@ public class RecommendationController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<Page<Post>> getRecommendedPosts(
-            @AuthenticationPrincipal Usuario usuario,
+    public ResponseEntity<Page<PostResponseDto>> getRecommendedPosts(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
+        Usuario usuario = userDetails.getUsuario();
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<Post> recommended = recommendationService.getRecommendedPosts(usuario, pageable);
+        Page<PostResponseDto> recommended = recommendationService.getRecommendedPosts(usuario, pageable);
 
         return ResponseEntity.ok(recommended);
     }
 }
-

@@ -1,8 +1,8 @@
-package com.manocorbas.dev_web_backend.services;
+package com.manocorbas.dev_web_backend.security;
 
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.UsuarioRepository; // Assumindo seu caminho
-import com.manocorbas.dev_web_backend.security.CustomUserDetails;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

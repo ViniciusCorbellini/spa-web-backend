@@ -5,8 +5,8 @@ import com.manocorbas.dev_web_backend.dtos.LoginRequest;
 import com.manocorbas.dev_web_backend.dtos.RegisterRequest;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
+import com.manocorbas.dev_web_backend.security.CustomUserDetailsService;
 import com.manocorbas.dev_web_backend.security.JwtService;
-import com.manocorbas.dev_web_backend.services.CustomUserDetailsService;
 import com.manocorbas.dev_web_backend.services.UsuarioService;
 
 import org.springframework.http.HttpStatus;

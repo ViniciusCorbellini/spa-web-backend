@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.manocorbas.dev_web_backend.dtos.PostResponseDto;
 import com.manocorbas.dev_web_backend.models.Post;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.PostRepository;
@@ -24,7 +25,7 @@ public class RecommendationService {
         this.seguidorRepository = seguidorRepository;
     }
 
-    public Page<Post> getRecommendedPosts(Usuario usuario, Pageable pageable) {
+    public Page<PostResponseDto> getRecommendedPosts(Usuario usuario, Pageable pageable) {
         Set<Long> visited = new HashSet<>();
         Set<Long> recommendedUserIds = new HashSet<>();
         
@@ -32,8 +33,20 @@ public class RecommendationService {
         
         // remove o próprio usuário (ele não deve ver recomendação dele mesmo)
         recommendedUserIds.remove(usuario.getId());
-        
-        return postRepository.findByUsuarioIdIn(recommendedUserIds, pageable);
+
+        Page<Post> recommended = postRepository.findByUsuarioIdIn(recommendedUserIds, pageable);
+
+        Page<PostResponseDto> dtoPage = recommended.map(
+            post -> new PostResponseDto(
+                post.getId(),
+                post.getUsuario().getId(),
+                post.getTexto(),
+                post.getUsuario().getNome(),
+                post.getDataCriacao()
+            )
+        );
+
+        return dtoPage;
     }
 
     private void dfs(Long userId, Set<Long> visited, Set<Long> result, int depth) {

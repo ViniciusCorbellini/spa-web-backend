@@ -14,12 +14,15 @@ public class CustomUserDetails implements UserDetails {
     private final Usuario usuario;
 
     // Autoridade Padrão que todo usuário terá
-    private static final GrantedAuthority DEFAULT_AUTHORITY =
-            new SimpleGrantedAuthority("ROLE_USER");
+    private static final GrantedAuthority DEFAULT_AUTHORITY = new SimpleGrantedAuthority("ROLE_USER");
 
     // Construtor que recebe a entidade Usuario
     public CustomUserDetails(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
     }
 
     // Método principal: Fornece a autoridade padrão
@@ -41,9 +44,25 @@ public class CustomUserDetails implements UserDetails {
         return usuario.getEmail();
     }
 
-    // Métodos de status da conta (true por padrão, a menos que você tenha lógica de desativação)
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    // Métodos de status da conta (true por padrão, a menos que você tenha lógica de
+    // desativação)
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
