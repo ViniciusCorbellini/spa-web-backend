@@ -1,8 +1,12 @@
 package com.manocorbas.dev_web_backend.config;
 
 import com.manocorbas.dev_web_backend.security.JwtAuthenticationFilter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,9 +44,11 @@ public class SecurityConfig {
         };
 
         return http
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(publicEndpoints).permitAll() // <-- Permite as rotas públicas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()                                
                         .anyRequest().authenticated() // <-- Todas as outras requerem autenticação
                 )
                 .sessionManagement(session -> session
