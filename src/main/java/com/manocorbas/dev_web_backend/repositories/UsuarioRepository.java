@@ -1,6 +1,5 @@
 package com.manocorbas.dev_web_backend.repositories;
 
-import com.manocorbas.dev_web_backend.models.Post;
 import com.manocorbas.dev_web_backend.models.Usuario;
 
 import org.springframework.data.domain.Page;
