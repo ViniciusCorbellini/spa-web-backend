@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ImagemService {
 
-    private final Path dirUpload = Paths.get("src/main/resources/uploads/perfis");
+    private final Path dirUpload = Paths.get("uploads/perfis");
 
     public String salvarFotoPerfil(MultipartFile foto) throws IOException {
 
