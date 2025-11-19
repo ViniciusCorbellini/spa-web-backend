@@ -44,4 +44,29 @@ public class ImagemService {
         // Retorna o caminho onde a imagem foi salva
         return "/uploads/perfis/" + nomeArquivo;
     }
+
+    public void deletarImagem(String fotoPerfil) {
+
+        if (fotoPerfil == null || fotoPerfil.isBlank()) {
+            return;
+        }
+
+        try {
+            // fotoPerfil vem no formato: "/uploads/perfis/<foto>.jpg"
+            // Pegamos só o nome:/
+            String nomeArquivo = Paths.get(fotoPerfil).getFileName().toString();
+
+            // Caminho real do arquivo
+            Path caminhoArquivo = dirUpload.resolve(nomeArquivo);
+
+            // Se existir, deleta
+            if (Files.exists(caminhoArquivo)) {
+                Files.delete(caminhoArquivo);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Erro ao deletar imagem: " + e.getMessage());
+        }
+    }
+
 }

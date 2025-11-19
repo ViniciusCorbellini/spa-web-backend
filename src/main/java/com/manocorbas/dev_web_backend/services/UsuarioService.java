@@ -1,9 +1,15 @@
 package com.manocorbas.dev_web_backend.services;
 
+import java.io.IOException;
+
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.UsuarioRepository;
+import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,9 +19,13 @@ import java.util.Optional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final ImagemService imagemService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, ImagemService imagemService, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.imagemService = imagemService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -48,19 +58,39 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario atualizarUsuario(Long id, Usuario novosDados) {
-        return usuarioRepository.findById(id).map(usuario -> {
-            usuario.setNome(novosDados.getNome());
-            usuario.setFotoPerfil(novosDados.getFotoPerfil());
-            // email e senha só alteram se realmente vierem preenchidos
-            if (novosDados.getEmail() != null && !novosDados.getEmail().isBlank()) {
-                usuario.setEmail(novosDados.getEmail());
+    public Usuario atualizarUsuario(Long id, PutUsuarioRequest novosDados, MultipartFile novaImagem) throws IOException {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        // Atualiza nome, se vier preenchido
+        if (novosDados.nome() != null && !novosDados.nome().isBlank()) {
+            usuario.setNome(novosDados.nome());
+        }
+
+        // Atualiza email, se vier preenchido
+        if (novosDados.email() != null && !novosDados.email().isBlank()) {
+            usuario.setEmail(novosDados.email());
+        }
+
+        // Codifica e atualiza senha, se vier preenchida
+        if (novosDados.senha() != null && !novosDados.senha().isBlank()) {
+            usuario.setSenhaHash(passwordEncoder.encode(novosDados.senha()));
+        }
+
+        // Atualização da img
+        if (novaImagem != null && !novaImagem.isEmpty()) {
+
+            // remove imagem antiga se houver
+            if (usuario.getFotoPerfil() != null) {
+                imagemService.deletarImagem(usuario.getFotoPerfil());  
             }
-            if (novosDados.getSenhaHash() != null && !novosDados.getSenhaHash().isBlank()) {
-                usuario.setSenhaHash(novosDados.getSenhaHash());
-            }
-            return usuarioRepository.save(usuario);
-        }).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+            // salva nova imagem e pega o caminho/URL
+            String caminhoNovo = imagemService.salvarFotoPerfil(novaImagem);
+            usuario.setFotoPerfil(caminhoNovo);
+        }
+
+        return usuarioRepository.save(usuario);
     }
 
     @Transactional

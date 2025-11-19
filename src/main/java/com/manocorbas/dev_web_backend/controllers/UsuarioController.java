@@ -1,15 +1,29 @@
 package com.manocorbas.dev_web_backend.controllers;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.services.UsuarioService;
 
+import io.jsonwebtoken.io.IOException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -60,14 +74,17 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.buscarPorNome(nome));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> atualizarUsuario(
             @PathVariable Long id,
-            @RequestBody Usuario novosDados) {
+            @RequestPart("usuario") PutUsuarioRequest novosDados,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws java.io.IOException {
+
         try {
-            Usuario atualizado = usuarioService.atualizarUsuario(id, novosDados);
+
+            Usuario atualizado = usuarioService.atualizarUsuario(id, novosDados, imagem);
             return ResponseEntity.ok(atualizado);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IOException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
