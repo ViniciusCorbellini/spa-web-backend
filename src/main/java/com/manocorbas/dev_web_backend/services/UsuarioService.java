@@ -1,19 +1,19 @@
 package com.manocorbas.dev_web_backend.services;
 
 import java.io.IOException;
-
-import com.manocorbas.dev_web_backend.models.Usuario;
-import com.manocorbas.dev_web_backend.repositories.UsuarioRepository;
-import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
+import com.manocorbas.dev_web_backend.models.Usuario;
+import com.manocorbas.dev_web_backend.repositories.UsuarioRepository;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
 @Service
 public class UsuarioService {
@@ -58,9 +58,8 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario atualizarUsuario(Long id, PutUsuarioRequest novosDados, MultipartFile novaImagem) throws IOException {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+    public Usuario atualizarUsuario(CustomUserDetails userDetails, PutUsuarioRequest novosDados, MultipartFile novaImagem) throws IOException {
+        Usuario usuario = userDetails.getUsuario();
 
         // Atualiza nome, se vier preenchido
         if (novosDados.nome() != null && !novosDados.nome().isBlank()) {

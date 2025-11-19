@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +18,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.manocorbas.dev_web_backend.services.UsuarioService;
 import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
 import com.manocorbas.dev_web_backend.models.Usuario;
-import com.manocorbas.dev_web_backend.services.UsuarioService;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
 import io.jsonwebtoken.io.IOException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,15 +76,15 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.buscarPorNome(nome));
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> atualizarUsuario(
-            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart("usuario") PutUsuarioRequest novosDados,
             @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws java.io.IOException {
 
         try {
 
-            Usuario atualizado = usuarioService.atualizarUsuario(id, novosDados, imagem);
+            Usuario atualizado = usuarioService.atualizarUsuario(userDetails, novosDados, imagem);
             return ResponseEntity.ok(atualizado);
         } catch (IllegalArgumentException | IOException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
