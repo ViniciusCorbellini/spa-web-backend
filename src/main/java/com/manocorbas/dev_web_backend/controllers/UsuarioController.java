@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.manocorbas.dev_web_backend.services.UsuarioService;
-import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
+import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioRequest;
+import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioResponse;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
@@ -83,9 +84,9 @@ public class UsuarioController {
             @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws java.io.IOException {
 
         try {
-
             Usuario atualizado = usuarioService.atualizarUsuario(userDetails, novosDados, imagem);
-            return ResponseEntity.ok(atualizado);
+            PutUsuarioResponse atualizadoDTO = new PutUsuarioResponse(atualizado.getNome(), atualizado.getEmail(), atualizado.getFotoPerfil());
+            return ResponseEntity.ok(atualizadoDTO);
         } catch (IllegalArgumentException | IOException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

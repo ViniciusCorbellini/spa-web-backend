@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.manocorbas.dev_web_backend.dtos.PutUsuarioRequest;
+import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioRequest;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.UsuarioRepository;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
