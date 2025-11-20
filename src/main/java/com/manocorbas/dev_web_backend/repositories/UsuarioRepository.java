@@ -22,4 +22,18 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u WHERE u.id IN :ids ORDER BY u.nome")
     Page<Usuario> findByUsuarioIdIn(@Param("ids") Set<Long> ids, Pageable pageable);
+
+    @Query("""
+                SELECT u FROM Usuario u
+                LEFT JOIN Seguidor s ON s.seguido.id = u.id
+                WHERE u.id <> :userId
+                  AND u.id NOT IN :exclude
+                GROUP BY u
+                ORDER BY COUNT(s.id) DESC
+            """)
+    Page<Usuario> findMostFollowedUsers(
+            @Param("userId") Long userId,
+            @Param("exclude") List<Long> exclude,
+            Pageable pageable);
+
 }
