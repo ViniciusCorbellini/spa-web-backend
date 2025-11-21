@@ -93,9 +93,10 @@ public class UsuarioController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deletarUsuario(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
+            Long id = userDetails.getUsuario().getId();
             usuarioService.deletarUsuario(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {

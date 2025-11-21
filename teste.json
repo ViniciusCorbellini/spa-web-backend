@@ -1,5 +1,5 @@
 {
-	"nome": "foto",
-	"email": "foto@teste.com",
-	"senha": "1234"
+	"nome": "del_user",
+	"email": "del@teste.com",
+	"senhaHash": "1234"
 }
