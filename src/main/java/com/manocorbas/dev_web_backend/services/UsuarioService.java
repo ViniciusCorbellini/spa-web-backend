@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioRequest;
+import com.manocorbas.dev_web_backend.dtos.Usuario.UsuarioCleanResponse;
+import com.manocorbas.dev_web_backend.dtos.Usuario.UsuarioPublicDto;
 import com.manocorbas.dev_web_backend.models.Usuario;
+import com.manocorbas.dev_web_backend.repositories.SeguidorRepository;
 import com.manocorbas.dev_web_backend.repositories.UsuarioRepository;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
@@ -21,11 +24,15 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final ImagemService imagemService;
     private final PasswordEncoder passwordEncoder;
+    private final SeguidorRepository seguidorRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, ImagemService imagemService, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, ImagemService imagemService,
+            PasswordEncoder passwordEncoder,
+            SeguidorRepository seguidorRepository) {
         this.usuarioRepository = usuarioRepository;
         this.imagemService = imagemService;
         this.passwordEncoder = passwordEncoder;
+        this.seguidorRepository = seguidorRepository;
     }
 
     @Transactional
@@ -45,20 +52,42 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> buscarPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public Optional<UsuarioPublicDto> buscarPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    long seguidores = seguidorRepository.countBySeguidoId(id);
+                    long seguindo = seguidorRepository.countBySeguidorId(id);
+
+                    return new UsuarioPublicDto(
+                            usuario.getId(),
+                            usuario.getNome(),
+                            seguidores,
+                            seguindo);
+                });
+
     }
 
     public Optional<Usuario> buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
 
-    public List<Usuario> buscarPorNome(String nome) {
-        return usuarioRepository.findByNomeContainingIgnoreCase(nome);
+    public List<UsuarioCleanResponse> buscarPorNome(String nome) {
+        List<Usuario> users = usuarioRepository.findByNomeContainingIgnoreCase(nome);
+
+        return users.stream()
+                .map(usuario -> {
+
+                    return new UsuarioCleanResponse(
+                            usuario.getId(),
+                            usuario.getNome(),
+                            usuario.getFotoPerfil());
+                })
+                .toList();
     }
 
     @Transactional
-    public Usuario atualizarUsuario(CustomUserDetails userDetails, PutUsuarioRequest novosDados, MultipartFile novaImagem) throws IOException {
+    public Usuario atualizarUsuario(CustomUserDetails userDetails, PutUsuarioRequest novosDados,
+            MultipartFile novaImagem) throws IOException {
         Usuario usuario = userDetails.getUsuario();
 
         // Atualiza nome, se vier preenchido
@@ -81,7 +110,7 @@ public class UsuarioService {
 
             // remove imagem antiga se houver
             if (usuario.getFotoPerfil() != null) {
-                imagemService.deletarImagem(usuario.getFotoPerfil());  
+                imagemService.deletarImagem(usuario.getFotoPerfil());
             }
 
             // salva nova imagem e pega o caminho/URL

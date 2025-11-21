@@ -18,7 +18,8 @@ public interface SeguidorRepository extends JpaRepository<Seguidor, Long> {
 
     Page<Seguidor> findBySeguidoId(Long seguidoId, Pageable pageable);
 
-    // checa se uma relação de follow existe para otimizar botões de "Seguir/Deixar de seguir"
+    // checa se uma relação de follow existe para otimizar botões de "Seguir/Deixar
+    // de seguir"
     boolean existsBySeguidorIdAndSeguidoId(Long seguidorId, Long seguidoId);
 
     // Para deixar de seguir
@@ -26,5 +27,10 @@ public interface SeguidorRepository extends JpaRepository<Seguidor, Long> {
 
     @Query("SELECT s.seguido.id FROM Seguidor s WHERE s.seguidor.id = :usuarioId")
     List<Long> findFollowingIdsByUsuarioId(@Param("usuarioId") Long usuarioId);
-}
 
+    // 🔥 Conta quantos seguem este usuário
+    long countBySeguidoId(Long seguidoId);
+
+    // 🔥 Conta quantos usuários ele segue
+    long countBySeguidorId(Long seguidorId);
+}

@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.manocorbas.dev_web_backend.services.UsuarioService;
 import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioRequest;
 import com.manocorbas.dev_web_backend.dtos.Usuario.PutUsuarioResponse;
+import com.manocorbas.dev_web_backend.dtos.Usuario.UsuarioCleanResponse;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
@@ -73,7 +74,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/nome")
-    public ResponseEntity<List<Usuario>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<List<UsuarioCleanResponse>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(usuarioService.buscarPorNome(nome));
     }
 
