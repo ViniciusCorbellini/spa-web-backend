@@ -1,6 +1,7 @@
 package com.manocorbas.dev_web_backend.controllers;
 
 import com.manocorbas.dev_web_backend.services.PostService;
+import com.manocorbas.dev_web_backend.dtos.PostResponseDto;
 import com.manocorbas.dev_web_backend.models.Post;
 
 import org.springframework.data.domain.Page;
@@ -60,7 +61,7 @@ public class PostController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Post>> buscarPorPalavra(@RequestParam String palavra) {
+    public ResponseEntity<List<PostResponseDto>> buscarPorPalavra(@RequestParam String palavra) {
         return ResponseEntity.ok(postService.buscarPorPalavra(palavra));
     }
 

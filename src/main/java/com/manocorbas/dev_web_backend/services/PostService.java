@@ -1,5 +1,6 @@
 package com.manocorbas.dev_web_backend.services;
 
+import com.manocorbas.dev_web_backend.dtos.PostResponseDto;
 import com.manocorbas.dev_web_backend.models.Post;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.PostRepository;
@@ -59,8 +60,16 @@ public class PostService {
         return postRepository.findByUsuarioIdOrderByDataCriacaoDesc(usuarioId, pageable);
     }
 
-    public List<Post> buscarPorPalavra(String palavra) {
-        return postRepository.findByTextoContainingIgnoreCase(palavra);
+    public List<PostResponseDto> buscarPorPalavra(String palavra) {
+        return postRepository.findByTextoContainingIgnoreCase(palavra)
+                .stream()
+                .map(post -> new PostResponseDto(
+                        post.getId(),
+                        post.getUsuario().getId(),
+                        post.getTexto(),
+                        post.getUsuario().getNome(),
+                        post.getDataCriacao()))
+                .toList();
     }
 
     @Transactional

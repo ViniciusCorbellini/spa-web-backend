@@ -61,6 +61,7 @@ public class UsuarioService {
                     return new UsuarioPublicDto(
                             usuario.getId(),
                             usuario.getNome(),
+                            usuario.getFotoPerfil(),
                             seguidores,
                             seguindo);
                 });
