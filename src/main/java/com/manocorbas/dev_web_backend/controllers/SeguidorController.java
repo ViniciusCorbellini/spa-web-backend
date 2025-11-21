@@ -65,8 +65,9 @@ public class SeguidorController {
 
     @GetMapping("/is-seguindo")
     public ResponseEntity<Boolean> isSeguindo(
-            @RequestParam Long seguidorId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam Long seguidoId) {
+        Long seguidorId = userDetails.getUsuario().getId();
         return ResponseEntity.ok(seguidorService.isSeguindo(seguidorId, seguidoId));
     }
 }
