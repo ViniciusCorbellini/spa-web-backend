@@ -1,8 +1,8 @@
 package com.manocorbas.dev_web_backend.controllers;
 
-import com.manocorbas.dev_web_backend.dtos.AuthResponse;
-import com.manocorbas.dev_web_backend.dtos.LoginRequest;
-import com.manocorbas.dev_web_backend.dtos.RegisterRequest;
+import com.manocorbas.dev_web_backend.dtos.auth.AuthResponse;
+import com.manocorbas.dev_web_backend.dtos.auth.LoginRequest;
+import com.manocorbas.dev_web_backend.dtos.auth.RegisterRequest;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 import com.manocorbas.dev_web_backend.security.CustomUserDetailsService;

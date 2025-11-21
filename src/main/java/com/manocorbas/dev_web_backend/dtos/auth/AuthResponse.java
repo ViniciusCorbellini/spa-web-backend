@@ -1,4 +1,4 @@
-package com.manocorbas.dev_web_backend.dtos;
+package com.manocorbas.dev_web_backend.dtos.auth;
 
 public record AuthResponse (
     Long id,

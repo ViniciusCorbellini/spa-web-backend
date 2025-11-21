@@ -3,10 +3,13 @@ package com.manocorbas.dev_web_backend.controllers;
 import com.manocorbas.dev_web_backend.services.PostService;
 import com.manocorbas.dev_web_backend.dtos.PostResponseDto;
 import com.manocorbas.dev_web_backend.models.Post;
+import com.manocorbas.dev_web_backend.models.Usuario;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -26,10 +29,11 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<?> criarPost(
-            @RequestParam Long usuarioId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam String texto) {
         try {
-            Post post = postService.criarPost(usuarioId, texto);
+            Usuario user = userDetails.getUsuario();
+            Post post = postService.criarPost(user.getId(), texto);
             return ResponseEntity.ok(post);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -67,23 +71,36 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long id,
             @RequestParam String novoTexto) {
+
         try {
-            Post atualizado = postService.atualizarPost(id, novoTexto);
-            return ResponseEntity.ok(atualizado);
+            Long userId = userDetails.getUsuario().getId();
+
+            PostResponseDto dto = postService.atualizarPost(id, userId, novoTexto);
+
+            return ResponseEntity.ok(dto);
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletarPost(@PathVariable Long id) {
+    public ResponseEntity<?> deletarPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id) {
         try {
-            postService.deletarPost(id);
+            Long usuarioId = userDetails.getUsuario().getId();
+
+            postService.deletarPost(id, usuarioId);
+
             return ResponseEntity.noContent().build();
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }

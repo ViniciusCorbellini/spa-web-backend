@@ -74,25 +74,48 @@ public class PostService {
     }
 
     @Transactional
-    public Post atualizarPost(Long id, String novoTexto) {
+    public PostResponseDto atualizarPost(Long id, Long usuarioId, String novoTexto) {
+
         if (novoTexto == null || novoTexto.isBlank()) {
             throw new IllegalArgumentException("Texto do post não pode ser vazio");
         }
+
         if (novoTexto.length() > 280) {
             throw new IllegalArgumentException("Texto ultrapassa o limite de 280 caracteres");
         }
 
-        return postRepository.findById(id).map(post -> {
-            post.setTexto(novoTexto);
-            return postRepository.save(post);
-        }).orElseThrow(() -> new IllegalArgumentException("Post não encontrado"));
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Post não encontrado"));
+
+        // Verificar se o dono do post é o usuario logado
+        if (!post.getUsuario().getId().equals(usuarioId)) {
+            throw new IllegalArgumentException("Você não pode atualizar um post de outro usuário");
+        }
+
+        post.setTexto(novoTexto);
+        Post salvo = postRepository.save(post);
+
+        return new PostResponseDto(
+                salvo.getId(),
+                salvo.getUsuario().getId(),
+                salvo.getTexto(),
+                salvo.getUsuario().getNome(),
+                salvo.getUsuario().getFotoPerfil(),
+                salvo.getDataCriacao());
     }
 
     @Transactional
-    public void deletarPost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new IllegalArgumentException("Post não encontrado");
+    public void deletarPost(Long id, Long usuarioId) {
+
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Post não encontrado"));
+
+        // impedir delete de post de outra pessoa
+        if (!post.getUsuario().getId().equals(usuarioId)) {
+            throw new IllegalArgumentException("Você não pode deletar um post de outro usuário");
         }
-        postRepository.deleteById(id);
+
+        postRepository.delete(post);
     }
+
 }
