@@ -1,10 +1,13 @@
 package com.manocorbas.dev_web_backend.controllers;
 
+import com.manocorbas.dev_web_backend.dtos.SeguirResponse;
 import com.manocorbas.dev_web_backend.models.Seguidor;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 import com.manocorbas.dev_web_backend.services.SeguidorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -22,10 +25,11 @@ public class SeguidorController {
 
     @PostMapping("/seguir")
     public ResponseEntity<?> seguir(
-            @RequestParam Long seguidorId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam Long seguidoId) {
         try {
-            Seguidor novoFollow = seguidorService.seguir(seguidorId, seguidoId);
+            Long seguidorId = userDetails.getUsuario().getId();
+            SeguirResponse novoFollow = seguidorService.seguir(seguidorId, seguidoId);
             return ResponseEntity.ok(novoFollow);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -34,9 +38,10 @@ public class SeguidorController {
 
     @DeleteMapping("/deixar-de-seguir")
     public ResponseEntity<?> deixarDeSeguir(
-            @RequestParam Long seguidorId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam Long seguidoId) {
         try {
+            Long seguidorId = userDetails.getUsuario().getId();
             seguidorService.deixarDeSeguir(seguidorId, seguidoId);
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {

@@ -1,5 +1,7 @@
 package com.manocorbas.dev_web_backend.services;
 
+import com.manocorbas.dev_web_backend.dtos.SeguirResponse;
+import com.manocorbas.dev_web_backend.dtos.Usuario.UsuarioCleanResponse;
 import com.manocorbas.dev_web_backend.models.Seguidor;
 import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.SeguidorRepository;
@@ -22,7 +24,7 @@ public class SeguidorService {
     }
 
     @Transactional
-    public Seguidor seguir(Long seguidorId, Long seguidoId) {
+    public SeguirResponse seguir(Long seguidorId, Long seguidoId) {
         if (seguidorId.equals(seguidoId)) {
             throw new IllegalArgumentException("Um usuário não pode seguir a si mesmo");
         }
@@ -40,7 +42,12 @@ public class SeguidorService {
         novoFollow.setSeguidor(seguidor);
         novoFollow.setSeguido(seguido);
 
-        return seguidorRepository.save(novoFollow);
+        Seguidor salvo = seguidorRepository.save(novoFollow);
+
+        return new SeguirResponse(
+                salvo.getId(),
+                new UsuarioCleanResponse(seguidor.getId(), seguidor.getNome(), seguidor.getFotoPerfil()),
+                new UsuarioCleanResponse(seguido.getId(), seguido.getNome(), seguido.getFotoPerfil()));
     }
 
     @Transactional
