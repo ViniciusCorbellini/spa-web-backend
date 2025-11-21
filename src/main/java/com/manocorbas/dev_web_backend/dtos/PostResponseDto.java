@@ -7,6 +7,7 @@ public record PostResponseDto(
     Long usuarioId,
     String texto,
     String nomeUsuario,
+    String fotoPerfil,
     LocalDateTime dataCriacao
 ) {}
 

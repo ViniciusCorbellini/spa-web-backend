@@ -68,6 +68,7 @@ public class PostService {
                         post.getUsuario().getId(),
                         post.getTexto(),
                         post.getUsuario().getNome(),
+                        post.getUsuario().getFotoPerfil(),
                         post.getDataCriacao()))
                 .toList();
     }

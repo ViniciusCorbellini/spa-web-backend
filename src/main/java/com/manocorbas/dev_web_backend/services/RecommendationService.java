@@ -132,6 +132,7 @@ public class RecommendationService {
                 post.getUsuario().getId(),
                 post.getTexto(),
                 post.getUsuario().getNome(),
+                post.getUsuario().getFotoPerfil(),
                 post.getDataCriacao());
     }
 
