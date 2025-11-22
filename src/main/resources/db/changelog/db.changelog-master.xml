@@ -27,4 +27,10 @@
         <sqlFile path="V5__Add_user_to_frase_anonima.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
+    <changeSet id="6" author="manocorbas">
+        <sqlFile path="V6__Create_Procedures.sql" 
+            relativeToChangelogFile="true"
+            splitStatements="false"/>
+    </changeSet>
+
 </databaseChangeLog>

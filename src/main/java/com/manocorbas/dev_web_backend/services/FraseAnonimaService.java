@@ -57,7 +57,9 @@ public class FraseAnonimaService {
         return fraseAnonimaRepository.findTop10ByOrderByDataCriacaoDesc();
     }
 
-    @Scheduled(cron = "0 0 * * * *") // a cada 1 hora
+    // seg min hr dia mês dia da semana
+    // */10 = a cada dez minutos
+    @Scheduled(cron = "0 */10 * * * *")
     public void removerExpiradas() {
         fraseAnonimaRepository.deleteByDataExpiracaoBefore();
     }

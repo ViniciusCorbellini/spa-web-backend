@@ -19,6 +19,6 @@ public interface FraseAnonimaRepository extends JpaRepository<FraseAnonima, Long
 
     @Modifying
     @Transactional
-    @Query(value = "SELECT remover_frases_expiradas()", nativeQuery = true)
+    @Query(value = "CALL remover_frases_expiradas()", nativeQuery = true)
     void deleteByDataExpiracaoBefore();
 }
