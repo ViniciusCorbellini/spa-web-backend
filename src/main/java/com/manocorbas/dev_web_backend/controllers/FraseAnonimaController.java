@@ -1,14 +1,17 @@
 package com.manocorbas.dev_web_backend.controllers;
 
+import com.manocorbas.dev_web_backend.dtos.frase_anonima.CriarFraseRequest;
+import com.manocorbas.dev_web_backend.dtos.frase_anonima.FraseAnonimaDto;
 import com.manocorbas.dev_web_backend.models.FraseAnonima;
+import com.manocorbas.dev_web_backend.security.CustomUserDetails;
 import com.manocorbas.dev_web_backend.services.FraseAnonimaService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Hidden
@@ -24,10 +27,11 @@ public class FraseAnonimaController {
 
     @PostMapping
     public ResponseEntity<?> salvarFrase(
-            @RequestParam String texto,
-            @RequestParam LocalDateTime dataExpiracao) {
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody CriarFraseRequest request
+        ) {
         try {
-            FraseAnonima frase = fraseAnonimaService.salvarFrase(texto, dataExpiracao);
+            FraseAnonimaDto frase = fraseAnonimaService.salvarFrase(request.texto(), userDetails.getUsuario(), request.dataExpiracao());
             return ResponseEntity.ok(frase);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -42,11 +46,5 @@ public class FraseAnonimaController {
     @GetMapping("/ultimas")
     public ResponseEntity<List<FraseAnonima>> listarUltimasFrases() {
         return ResponseEntity.ok(fraseAnonimaService.listarUltimasFrases());
-    }
-
-    @DeleteMapping("/expiradas")
-    public ResponseEntity<?> removerExpiradas() {
-        fraseAnonimaService.removerExpiradas();
-        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "frase_anonima")
 public class FraseAnonima {
@@ -20,6 +22,11 @@ public class FraseAnonima {
 
     @Column(name = "data_expiracao", nullable = false)
     private LocalDateTime dataExpiracao;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     public Long getId() {
         return id;
@@ -51,5 +58,13 @@ public class FraseAnonima {
 
     public void setDataExpiracao(LocalDateTime dataExpiracao) {
         this.dataExpiracao = dataExpiracao;
+    }
+
+    public Usuario getUsuario(){
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario){
+        this.usuario = usuario;
     }
 }

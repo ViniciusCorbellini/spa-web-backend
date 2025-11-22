@@ -1,7 +1,11 @@
 package com.manocorbas.dev_web_backend.services;
 
+import com.manocorbas.dev_web_backend.dtos.frase_anonima.FraseAnonimaDto;
 import com.manocorbas.dev_web_backend.models.FraseAnonima;
+import com.manocorbas.dev_web_backend.models.Usuario;
 import com.manocorbas.dev_web_backend.repositories.FraseAnonimaRepository;
+
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +22,7 @@ public class FraseAnonimaService {
     }
 
     @Transactional
-    public FraseAnonima salvarFrase(String texto, LocalDateTime dataExpiracao) {
+    public FraseAnonimaDto salvarFrase(String texto, Usuario usuario, LocalDateTime dataExpiracao) {
         if (texto == null || texto.isBlank()) {
             throw new IllegalArgumentException("Texto da frase não pode ser vazio");
         }
@@ -30,15 +34,21 @@ public class FraseAnonimaService {
         }
 
         FraseAnonima frase = new FraseAnonima();
+        frase.setUsuario(usuario);
         frase.setTexto(texto);
         frase.setDataExpiracao(dataExpiracao);
-        // data_criacao vai pelo DEFAULT do banco
+        // data_criacao vai por DEFAULT do banco (horário da inserção)
 
-        return fraseAnonimaRepository.save(frase);
+        FraseAnonima fraseAnonima = fraseAnonimaRepository.save(frase);
+        return new FraseAnonimaDto(fraseAnonima.getId(), texto, fraseAnonima.getDataCriacao(), dataExpiracao);
     }
 
     @Transactional(readOnly = true)
     public List<FraseAnonima> buscarPorPalavra(String palavra) {
+        List<FraseAnonima> lista = fraseAnonimaRepository.findByTextoContainingIgnoreCase(palavra);
+        lista.stream().map(
+            f -> new FraseAnonimaDto(f.getId(), f.getTexto(), f.getDataCriacao(), f.getDataExpiracao())
+        );
         return fraseAnonimaRepository.findByTextoContainingIgnoreCase(palavra);
     }
 
@@ -47,14 +57,8 @@ public class FraseAnonimaService {
         return fraseAnonimaRepository.findTop10ByOrderByDataCriacaoDesc();
     }
 
-    @Transactional
+    @Scheduled(cron = "0 0 * * * *") // a cada 1 hora
     public void removerExpiradas() {
-        List<FraseAnonima> expiradas = fraseAnonimaRepository.findAll().stream()
-                .filter(f -> f.getDataExpiracao().isBefore(LocalDateTime.now()))
-                .toList();
-
-        if (!expiradas.isEmpty()) {
-            fraseAnonimaRepository.deleteAll(expiradas);
-        }
+        fraseAnonimaRepository.deleteByDataExpiracaoBefore();
     }
 }
