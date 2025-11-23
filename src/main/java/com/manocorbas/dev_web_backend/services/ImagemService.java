@@ -8,13 +8,17 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ImagemService {
 
-    private final Path dirUpload = Paths.get("uploads/perfis");
+    @Value("${application.upload.dir}") 
+    private String uploadDir;
+
+    Path dirUpload = Paths.get(uploadDir);
 
     public String salvarFotoPerfil(MultipartFile foto) throws IOException {
 
@@ -25,7 +29,7 @@ public class ImagemService {
         // Validação da extensão da imagem
         String contentType = foto.getContentType();
         if (!Objects.equals(contentType, "image/jpeg") &&
-            !Objects.equals(contentType, "image/png")) {
+                !Objects.equals(contentType, "image/png")) {
             throw new IllegalArgumentException("Apenas JPG ou PNG são permitidos");
         }
 
