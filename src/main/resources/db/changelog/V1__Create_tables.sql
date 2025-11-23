@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS frase_anonima (
     data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_expiracao TIMESTAMP NOT NULL,
     usuario_id BIGINT NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id);
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
 -- obs: tive que resetar o banco no render. Portanto vou simplesmente mudar as 
