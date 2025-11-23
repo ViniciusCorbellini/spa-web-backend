@@ -21,5 +21,5 @@ VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
 -- ======================
 -- Frases anônimas
 -- ======================
-INSERT INTO frase_anonima (texto, data_criacao, data_expiracao)
-VALUES ('So sei que nada sei', NOW(), '2026-01-01');
+INSERT INTO frase_anonima (texto, data_criacao, data_expiracao, usuario_id)
+VALUES ('So sei que nada sei', NOW(), '2026-01-01', 1);
