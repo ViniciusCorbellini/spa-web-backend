@@ -10,9 +10,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class DevWebBackendApplication {
 
 	public static void main(String[] args) {
-		// A lib buscará um arquivo .env na pasta raiz do projeto e
-		// definirá as variaveis como propriedades do sistema.
-		Dotenv dotenv = Dotenv.load();
+		// Configura para não quebrar se o .env não existir
+		// Não quebra em prod (eu acho)
+		Dotenv dotenv = Dotenv.configure()
+				.ignoreIfMissing()
+				.load();
+
 		dotenv.entries().forEach(entry -> {
 			System.setProperty(entry.getKey(), entry.getValue());
 		});
