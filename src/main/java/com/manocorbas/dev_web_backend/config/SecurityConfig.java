@@ -2,11 +2,11 @@ package com.manocorbas.dev_web_backend.config;
 
 import com.manocorbas.dev_web_backend.security.JwtAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +15,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,9 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthFilter;
 	private final AuthenticationProvider authenticationProvider;
+
+	@Value("${application.FRONTEND_ORIGIN}")
+	private String frontendOrigin;
 
 	public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
 			AuthenticationProvider authenticationProvider) {
@@ -41,10 +47,10 @@ public class SecurityConfig {
 
 		return http
 				.csrf(AbstractHttpConfigurer::disable)
-				.cors(withDefaults())
+				// Dizemos ao Spring para usar a configuração definida no Bean abaixo
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(publicEndpoints).permitAll()
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -54,8 +60,26 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		// Define as origens permitidas: Localhost && Prod
+		// OBS: Se frontendOrigin estiver vazio ou nulo, o Arrays.asList pode reclamar
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", frontendOrigin));
+
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("*")); // Ou liste explicitamente: "Authorization", "Content-Type"
+		configuration.setExposedHeaders(Arrays.asList("Authorization"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+
+	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
 		return (web) -> web.ignoring().requestMatchers("/uploads/**");
 	}
-
 }
