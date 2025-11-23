@@ -23,3 +23,9 @@ VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
 -- ======================
 INSERT INTO frase_anonima (texto, data_criacao, data_expiracao, usuario_id)
 VALUES ('So sei que nada sei', NOW(), '2026-01-01', 1);
+
+
+-- obs: tive que resetar o banco no render. Portanto vou simplesmente mudar as 
+-- migrações. Agora o bd já cria a tabela frase_anonima corretamente
+-- e insere os dados certinho.
+-- essa é a melhor solução? talvez não, mas é a mais conveniente

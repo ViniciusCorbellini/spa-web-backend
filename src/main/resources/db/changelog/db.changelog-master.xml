@@ -14,21 +14,11 @@
     </changeSet>
 
     <changeSet id="3" author="manocorbas">
-        <sqlFile path="V3__Create_Functions.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="false"/>
+        <sqlFile path="V3__Insert_initial_data.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
     <changeSet id="4" author="manocorbas">
-        <sqlFile path="V4__Insert_initial_data.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-
-    <changeSet id="5" author="manocorbas">
-        <sqlFile path="V5__Add_user_to_frase_anonima.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-
-    <changeSet id="6" author="manocorbas">
-        <sqlFile path="V6__Create_Procedures.sql" 
+        <sqlFile path="V4__Create_Procedures.sql" 
             relativeToChangelogFile="true"
             splitStatements="false"/>
     </changeSet>

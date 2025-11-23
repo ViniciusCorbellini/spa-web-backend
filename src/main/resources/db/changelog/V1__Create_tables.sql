@@ -38,5 +38,12 @@ CREATE TABLE IF NOT EXISTS frase_anonima (
     id SERIAL PRIMARY KEY,
     texto VARCHAR(280) NOT NULL,
     data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_expiracao TIMESTAMP NOT NULL
+    data_expiracao TIMESTAMP NOT NULL,
+    usuario_id BIGINT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id);
 );
+
+-- obs: tive que resetar o banco no render. Portanto vou simplesmente mudar as 
+-- migrações. Agora o bd já cria a tabela frase_anonima corretamente
+-- e insere os dados certinho.
+-- essa é a melhor solução? talvez não, mas é a mais conveniente
