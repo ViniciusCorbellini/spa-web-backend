@@ -15,10 +15,30 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ImagemService {
 
-    @Value("${application.upload.dir}") 
+    @Value("${application.upload.dir}")
     private String uploadDir;
 
-    Path dirUpload = Paths.get(uploadDir);
+    private final Path dirUpload;
+
+    // Injetamos o valor DIRETAMENTE nos parênteses do construtor
+    public ImagemService(@Value("${upload.dir}") String uploadDir) {
+        
+        // Validação contra null ptr exception
+        if (uploadDir == null || uploadDir.isBlank()) {
+            throw new RuntimeException("A variável de ambiente do app.upload.dir não foi configurada!");
+        }
+
+        this.dirUpload = Paths.get(uploadDir);
+
+        // Garante que a pasta existe ao iniciar o app
+        try {
+            if (!Files.exists(dirUpload)) {
+                Files.createDirectories(dirUpload);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Não foi possível criar o diretório de upload: " + uploadDir, e);
+        }
+    }
 
     public String salvarFotoPerfil(MultipartFile foto) throws IOException {
 
