@@ -13,8 +13,17 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Normaliza o caminho para garantir que termine com "/"
+        String path = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
+        
+        // Adiciona o prefixo "file:" necessário para o Spring achar arquivos no disco
+        String location = "file:" + path;
+
         registry
-                .addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadDir);
+            .addResourceHandler("/uploads/**")
+            .addResourceLocations(location);
+            
+        // Log para debug 
+        System.out.println("SERVINDO ARQUIVOS DE >>>> " + location);
     }
 }
