@@ -65,7 +65,13 @@ public class SecurityConfig {
 
 		// Define as origens permitidas: Localhost && Prod
 		// OBS: Se frontendOrigin estiver vazio ou nulo, o Arrays.asList pode reclamar
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", frontendOrigin));
+		configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173", frontendOrigin));
+		// OBS2: Se frontendOrigin for definida como '*' nas variáveis de ambiente do render vai dar ruim
+		// ou mais especificamente -> 
+		// 	java.lang.IllegalArgumentException: When allowCredentials is true, allowedOrigins cannot contain the special value
+		//  	"*" since that cannot be set on the "Access-Control-Allow-Origin" response header. To allow credentials 
+		// 		to a set of origins, list them explicitly or consider using "allowedOriginPatterns" instead.
+		// por conta disso, usarei setAllowedOriginPatterns ao invés de setAllowedOrigins pra enganar o navegador
 
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*")); // Ou liste explicitamente: "Authorization", "Content-Type"
