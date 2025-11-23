@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    container_name: spring-api
+    ports:
+      - "8080:8080"
+    environment:
+      FRONTEND_ORIGIN: "http://localhost:5173"
+      UPLOAD_DIR: "/data/uploads/"
+      JWT_SECRET: "TESTE123"
+    volumes:
+      - ./data/uploads:/data/uploads

@@ -1,5 +1,8 @@
 package com.manocorbas.dev_web_backend.config;
 
+import java.io.File;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,14 +13,30 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import jakarta.annotation.PostConstruct;
+
 @Configuration
 public class ApplicationConfig {
 
     private final UserDetailsService userDetailsService;
 
+    @Value("${upload.dir}")
+    private String uploadDir;
+
     // Injeção manual do UserDetailsService via construtor
     public ApplicationConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    /**
+     * Cria a pasta para uploads pra qnd estiver em prod
+     */
+    @PostConstruct
+    public void initUploadDir() {
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
     }
 
     /**

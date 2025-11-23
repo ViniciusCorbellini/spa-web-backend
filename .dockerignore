@@ -1,0 +1,35 @@
+# Diretórios de build e temporários
+target/
+.idea/
+.mvn/
+
+# Arquivos de IDE e desenvolvimento
+.vscode/
+.DS_Store
+*.swp
+.history
+
+# Arquivos e diretórios de gestão de pacotes e dependências
+node_modules/ # Se você tiver algum front-end/tooling aqui
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Arquivos de controle de versão (já ignorados pelo .gitignore, mas é uma boa prática)
+.git/
+.gitignore
+.gitattributes
+
+# Variáveis de ambiente
+.env.example
+
+# Arquivos de build tools (mantemos o `mvnw` e `mvnw.cmd` para build dentro do container)
+# `pom.xml` é necessário.
+
+# Arquivos grandes, de teste ou de documentação que não são essenciais em produção
+# Ajuste conforme a necessidade
+uploads/
+img_prototipo_sist.png
+HELP.md
+README.md
+teste.json
