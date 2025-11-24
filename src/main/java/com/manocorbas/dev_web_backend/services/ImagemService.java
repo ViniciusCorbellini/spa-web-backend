@@ -1,10 +1,6 @@
 package com.manocorbas.dev_web_backend.services;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -12,29 +8,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+
 @Service
 public class ImagemService {
 
-    private final Path dirUpload;
+    private final AmazonS3 s3Client;
 
-    // Injetamos o valor DIRETAMENTE nos parênteses do construtor
-    public ImagemService(@Value("${application.upload.dir}") String uploadDir) {
-        
-        // Validação contra null ptr exception
-        if (uploadDir == null || uploadDir.isBlank()) {
-            throw new RuntimeException("A variável de ambiente do app.upload.dir não foi configurada!");
-        }
+    @Value("${supabase.storage.bucket-name}")
+    private String bucketName;
 
-        this.dirUpload = Paths.get(uploadDir).toAbsolutePath().normalize();
+    // URL base do projeto para montar o link público
+    @Value("${supabase.project.url}")
+    private String supabaseProjectUrl;
 
-        // Garante que a pasta existe ao iniciar o app
-        try {
-            if (!Files.exists(dirUpload)) {
-                Files.createDirectories(dirUpload);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Não foi possível criar o diretório de upload: " + uploadDir, e);
-        }
+    public ImagemService(AmazonS3 s3Client) {
+        this.s3Client = s3Client;
     }
 
     public String salvarFotoPerfil(MultipartFile foto) throws IOException {
@@ -50,20 +40,20 @@ public class ImagemService {
             throw new IllegalArgumentException("Apenas JPG ou PNG são permitidos");
         }
 
-        // Cria o dir se ele não existir
-        if (!Files.exists(dirUpload)) {
-            Files.createDirectories(dirUpload);
-        }
-
         String extensao = contentType.equals("image/png") ? ".png" : ".jpg";
         String nomeArquivo = UUID.randomUUID() + extensao;
 
-        Path destino = dirUpload.resolve(nomeArquivo);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(foto.getContentType());
+        metadata.setContentLength(foto.getSize());
 
-        Files.copy(foto.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+        // Envia para o Supabase
+        s3Client.putObject(bucketName, nomeArquivo, foto.getInputStream(), metadata);
 
-        // Retorna o caminho onde a imagem foi salva
-        return "/uploads/perfis/" + nomeArquivo;
+        // Retorna a URL Pública montada manualmente
+        // Formato:
+        // https://<projeto>.supabase.co/storage/v1/object/public/<bucket>/<nomeArquivo>
+        return supabaseProjectUrl + "/storage/v1/object/public/" + bucketName + "/" + nomeArquivo;
     }
 
     public void deletarImagem(String fotoPerfil) {
@@ -73,21 +63,18 @@ public class ImagemService {
         }
 
         try {
-            // fotoPerfil vem no formato: "/uploads/perfis/<foto>.jpg"
-            // Pegamos só o nome:/
-            String nomeArquivo = Paths.get(fotoPerfil).getFileName().toString();
+            // Extrai o nome do arquivo da URL completa
+            // formato: https://xxx.supabase.co/.../public/imagens-perfil/nome-do-arquivo.jpg
+            // fazemos uma substring a partir do idx dá ultima '/'
+            String nomeArquivo = fotoPerfil.substring(fotoPerfil.lastIndexOf("/") + 1);
 
-            // Caminho real do arquivo
-            Path caminhoArquivo = dirUpload.resolve(nomeArquivo);
+            // deleta usando o cliente s3
+            s3Client.deleteObject(bucketName, nomeArquivo);
 
-            // Se existir, deleta
-            if (Files.exists(caminhoArquivo)) {
-                Files.delete(caminhoArquivo);
-            }
+            System.out.println("Imagem deletada do Supabase: " + nomeArquivo);
 
         } catch (Exception e) {
-            System.err.println("Erro ao deletar imagem: " + e.getMessage());
+            System.err.println("Erro ao deletar imagem do storage: " + e.getMessage());
         }
     }
-
 }
