@@ -20,6 +20,7 @@ public class SupabaseConfig {
     @Value("${supabase.storage.secret-key}")
     private String secretKey;
 
+    // obs: não inclua "/storage/v1/s3" no seu .env do endpoint
     @Value("${supabase.storage.endpoint}")
     private String endpoint;
 
@@ -34,7 +35,6 @@ public class SupabaseConfig {
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withPathStyleAccessEnabled(true)
-                .enablePathStyleAccess()          
                 .build();
     }
 }
