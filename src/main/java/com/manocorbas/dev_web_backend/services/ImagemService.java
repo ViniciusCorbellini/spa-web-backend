@@ -1,6 +1,7 @@
 package com.manocorbas.dev_web_backend.services;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 @Service
@@ -34,26 +35,28 @@ public class ImagemService {
         // Cria um arquivo temporário no disco do servidor (Render/Local)
         File arquivoTemp = null;
 
-        // Gambiarra pra ver se o upload pro supabase funfa
         try {
             // Converte MultipartFile para File
             arquivoTemp = File.createTempFile("upload-", ".tmp");
             arquivo.transferTo(arquivoTemp);
 
-            // Prepara a requisição
-            PutObjectRequest request = new PutObjectRequest(bucketName, nomeArquivo, arquivoTemp);
+            // Prepara os metadados
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(arquivo.getContentType()); // e.g., "image/jpeg"
+            metadata.setContentLength(arquivoTemp.length());
 
-            // Define permissão pública 
-            request.setCannedAcl(CannedAccessControlList.PublicRead);
+            // Cria uma Request
+            PutObjectRequest request = new PutObjectRequest(bucketName, nomeArquivo, new FileInputStream(arquivoTemp),
+                    metadata);
 
-            // Envia (Agora o SDK pode tentar retry à vontade se a rede oscilar)
+            // Manda o request
             s3Client.putObject(request);
 
             // Retorna a URL
             return supabaseProjectUrl + "/storage/v1/object/public/" + bucketName + "/" + nomeArquivo;
 
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar arquivo temporário", e);
+            throw new RuntimeException("Erro ao processar arquivo", e);
         } finally {
             // Limpeza: Deleta o arquivo temporário do servidor para não encher o disco
             if (arquivoTemp != null && arquivoTemp.exists()) {
