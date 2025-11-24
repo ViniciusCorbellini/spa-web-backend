@@ -1,90 +1,57 @@
 package com.manocorbas.dev_web_backend.services;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class ImagemService {
 
-    private final AmazonS3 s3Client;
+    private final WebClient client;
 
-    @Value("${supabase.storage.bucket-name}")
-    private String bucketName;
+    @Value("${supabase.bucket-name}")
+    private String bucket;
 
-    // URL base do projeto para montar o link público
-    @Value("${supabase.project.url}")
-    private String supabaseProjectUrl;
+    @Value("${supabase.project-url}")
+    private String projectUrl;
 
-    public ImagemService(AmazonS3 s3Client) {
-        this.s3Client = s3Client;
+    public ImagemService(WebClient supabaseClient) {
+        this.client = supabaseClient;
     }
 
-    public String salvarFotoPerfil(MultipartFile arquivo) {
-        String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-
-        // Cria um arquivo temporário no disco do servidor (Render/Local)
-        File arquivoTemp = null;
-
+    public String salvarFotoPerfil(MultipartFile file) {
         try {
-            // Converte MultipartFile para File
-            arquivoTemp = File.createTempFile("upload-", ".tmp");
-            arquivo.transferTo(arquivoTemp);
+            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-            // Prepara os metadados
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(arquivo.getContentType()); // e.g., "image/jpeg"
-            metadata.setContentLength(arquivoTemp.length());
+            client.put()
+                    .uri("/object/" + bucket + "/" + filename)
+                    .header("x-upsert", "true")
+                    .contentType(MediaType.parseMediaType(file.getContentType()))
+                    .bodyValue(file.getBytes())
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
 
-            // Cria uma Request
-            PutObjectRequest request = new PutObjectRequest(bucketName, nomeArquivo, new FileInputStream(arquivoTemp),
-                    metadata);
-
-            // Manda o request
-            s3Client.putObject(request);
-
-            // Retorna a URL
-            return supabaseProjectUrl + "/storage/v1/object/public/" + bucketName + "/" + nomeArquivo;
-
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao processar arquivo", e);
-        } finally {
-            // Limpeza: Deleta o arquivo temporário do servidor para não encher o disco
-            if (arquivoTemp != null && arquivoTemp.exists()) {
-                arquivoTemp.delete();
-            }
-        }
-    }
-
-    public void deletarImagem(String fotoPerfil) {
-
-        if (fotoPerfil == null || fotoPerfil.isBlank()) {
-            return;
-        }
-
-        try {
-            // Extrai o nome do arquivo da URL completa
-            // formato:
-            // https://xxx.supabase.co/.../public/imagens-perfil/nome-do-arquivo.jpg
-            // fazemos uma substring a partir do idx dá ultima '/'
-            String nomeArquivo = fotoPerfil.substring(fotoPerfil.lastIndexOf("/") + 1);
-
-            // deleta usando o cliente s3
-            s3Client.deleteObject(bucketName, nomeArquivo);
-
-            System.out.println("Imagem deletada do Supabase: " + nomeArquivo);
+            return getPublicUrl(filename);
 
         } catch (Exception e) {
-            System.err.println("Erro ao deletar imagem do storage: " + e.getMessage());
+            throw new RuntimeException("Erro ao fazer upload para Supabase", e);
         }
+    }
+
+    public void deletarImagem(String filename) {
+        client.delete()
+                .uri("/object/" + bucket + "/" + filename)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
+
+    public String getPublicUrl(String filename) {
+        return projectUrl + "/storage/v1/object/public/" + bucket + "/" + filename;
     }
 }
