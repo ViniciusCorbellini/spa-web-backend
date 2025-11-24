@@ -33,6 +33,8 @@ public class SupabaseConfig {
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                .withPathStyleAccessEnabled(true)
+                .enablePathStyleAccess()          
                 .build();
     }
 }

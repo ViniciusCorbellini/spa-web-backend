@@ -1,5 +1,6 @@
 package com.manocorbas.dev_web_backend.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 
 @Service
 public class ImagemService {
@@ -27,33 +30,38 @@ public class ImagemService {
         this.s3Client = s3Client;
     }
 
-    public String salvarFotoPerfil(MultipartFile foto) throws IOException {
+    public String salvarFotoPerfil(MultipartFile arquivo) {
+        String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
 
-        if (foto.isEmpty()) {
-            throw new IllegalArgumentException("Foto vazia");
+        // Cria um arquivo temporário no disco do servidor (Render/Local)
+        File arquivoTemp = null;
+
+        // Gambiarra pra ver se o upload pro supabase funfa
+        try {
+            // Converte MultipartFile para File
+            arquivoTemp = File.createTempFile("upload-", ".tmp");
+            arquivo.transferTo(arquivoTemp);
+
+            // Prepara a requisição
+            PutObjectRequest request = new PutObjectRequest(bucketName, nomeArquivo, arquivoTemp);
+
+            // Define permissão pública 
+            request.setCannedAcl(CannedAccessControlList.PublicRead);
+
+            // Envia (Agora o SDK pode tentar retry à vontade se a rede oscilar)
+            s3Client.putObject(request);
+
+            // Retorna a URL
+            return supabaseProjectUrl + "/storage/v1/object/public/" + bucketName + "/" + nomeArquivo;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar arquivo temporário", e);
+        } finally {
+            // Limpeza: Deleta o arquivo temporário do servidor para não encher o disco
+            if (arquivoTemp != null && arquivoTemp.exists()) {
+                arquivoTemp.delete();
+            }
         }
-
-        // Validação da extensão da imagem
-        String contentType = foto.getContentType();
-        if (!Objects.equals(contentType, "image/jpeg") &&
-                !Objects.equals(contentType, "image/png")) {
-            throw new IllegalArgumentException("Apenas JPG ou PNG são permitidos");
-        }
-
-        String extensao = contentType.equals("image/png") ? ".png" : ".jpg";
-        String nomeArquivo = UUID.randomUUID() + extensao;
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(foto.getContentType());
-        metadata.setContentLength(foto.getSize());
-
-        // Envia para o Supabase
-        s3Client.putObject(bucketName, nomeArquivo, foto.getInputStream(), metadata);
-
-        // Retorna a URL Pública montada manualmente
-        // Formato:
-        // https://<projeto>.supabase.co/storage/v1/object/public/<bucket>/<nomeArquivo>
-        return supabaseProjectUrl + "/storage/v1/object/public/" + bucketName + "/" + nomeArquivo;
     }
 
     public void deletarImagem(String fotoPerfil) {
@@ -64,7 +72,8 @@ public class ImagemService {
 
         try {
             // Extrai o nome do arquivo da URL completa
-            // formato: https://xxx.supabase.co/.../public/imagens-perfil/nome-do-arquivo.jpg
+            // formato:
+            // https://xxx.supabase.co/.../public/imagens-perfil/nome-do-arquivo.jpg
             // fazemos uma substring a partir do idx dá ultima '/'
             String nomeArquivo = fotoPerfil.substring(fotoPerfil.lastIndexOf("/") + 1);
 
