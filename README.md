@@ -15,35 +15,28 @@ Usuário:
 - Criar, editar e remover posts
 - Pesquisar por posts ou usuários
 - Seguir outros usuários
-- Postar frases temporárias e/ou anônimas
+- Postar frases temporárias e anônimas
 - Visualizar perfil (dados cadastrais)
 - Alterar informações do perfil
 
-<!-- TODO -->
 ## 4) Limites e suposições
-<!-- Simples assim:
-     - Limites = regras/prazos/obrigações que você não controla.
-     - Suposições = coisas que você espera ter e podem falhar.
-     - Plano B = como você segue com a 1ª fatia se algo falhar.
-     EXEMPLO:
-     Limites: entrega final até o fim da disciplina (ex.: 2025-11-30); rodar no navegador; sem serviços pagos.
-     Suposições: internet no laboratório; navegador atualizado; acesso ao GitHub; 10 min para teste rápido.
-     Plano B: sem internet → rodar local e salvar em arquivo/LocalStorage; sem tempo do professor → testar com 3 colegas. -->
-Limites: [prazo final], [regras/tecnologias obrigatórias], [restrições]  
-Suposições: [internet/navegador/GitHub/tempo de teste]  
-Plano B: [como continua entregando a 1ª fatia se algo falhar]
+Limites: entrega final até o fim da disciplina; rodar no navegador; sem serviços pagos.
+Suposições: internet no laboratório; navegador atualizado; acesso ao GitHub; 10 min para teste rápido.
+Plano B: sem internet → rodar localmente.
 
-<!-- TODO -->
 ## 5) Hipóteses + validação
 H-Valor: Se os usuários puderem publicar posts curtos e temporários, então o engajamento melhora em quantidade de posts criados e interações na timeline.
 Validação (valor): teste com 5 usuários; meta: ≥4 conseguem postar e ver posts sem ajuda.
 
-H-Viabilidade: Com Java Spring Boot + React, carregar timeline leva até 2s.
-Validação (viabilidade): medir no protótipo com 30 ações; meta: ≥27 de 30 ações em ≤2s.
+H-Viabilidade: Com Java Spring Boot + React, carregar timeline leva até 10s. (Hospedar no Render gera lentidão devido a limitação de recursos)
+Validação (viabilidade): medir no protótipo com 30 ações; meta: ≥27 de 30 ações em ≤10s.
 
 ## 6) Fluxo principal e primeira fatia
 **Fluxo principal (curto):**  
 1) Usuário se cadastra ou faz login → 2) Cria post ou frase temporária → 3) Sistema salva no banco → 4) Timeline mostra posts
+
+**Fluxo secundário (longo):**  
+1) Usuário faz login → 2) Visita sua página de perfil → 3) Cria novos posts → 4) Banco salva os posts → 5) usuário atualiza sua foto de perfil → 6) sistema salva a nova foto e a mostra no perfil do usuário
 
 **Primeira fatia vertical (escopo mínimo):**  
 Inclui: cadastro/login, criar post, listar posts
@@ -55,27 +48,22 @@ Critérios de aceite:
 ## 7) Esboços de telas do sistema (wireframes)
 ![Protótipo das telas](img_prototipo_sist.png)
 
-<!-- TODO -->
 ## 8) Tecnologias
 
-<!-- TODO -->
 ### 8.1 Navegador
-**Navegador:** React + TailwindCSS
-**Armazenamento local (se usar):** LocalStorage (para sessão)
-**Hospedagem:** execução local via Docker
+- **Armazenamento local:** LocalStorage (para tokesn JWT)
 
-<!-- TODO -->
-### 8.2 Front-end (servidor de aplicação, se existir)
-**Front-end (servidor):** React
-**Hospedagem:** container Docker
+### 8.2 Front-end 
+**Front-end (servidor):** React e Vite
+**Hospedagem:** Github Pages
 
 ### 8.3 Back-end (API/servidor, se existir)
 - **Back-end (API):** Spring Boot (Java 21)
-- **Banco de dados:** PostgreSQL (17.6)
+- **Banco de dados:** PostgreSQL (uma instância em render - para dados gerais - e outra em supabase - para armazenamento de fotos)
 - **Acesso ao BD:** Spring Data JPA (Hibernate)
 - **Migrações do Banco de Dados:** Liquibase
 - **Segurança:** Spring Security com autenticação via Token JWT
-- **Deploy do back-end:** ambos rodando em containers Docker (API + banco)
+- **Deploy do back-end:** Ambos no Render (api em um container docker)
 
 ## 9) Plano de Dados
 
@@ -89,14 +77,14 @@ Critérios de aceite:
 
 #### Usuario
 
-| Campo         | Tipo     | Obrigatório | Exemplo            |
-|---------------|----------|-------------|--------------------|
-| id            | número   | sim         | 1                  |
-| nome          | texto    | sim         | "Mano corbas"      |
-| email         | texto    | sim (único) | "vini@exemplo.com" |
-| senha_hash    | texto    | sim         | "$2a$10$..."       |
-| foto_perfil   | texto    | não         | "vini.png"         |
-| data_criacao  | data/hora| sim         | 2025-08-20 14:30   |
+| Campo         | Tipo     | Obrigatório | Exemplo                                                                            |
+|---------------|----------|-------------|------------------------------------------------------------------------------------|
+| id            | número   | sim         | 1                                                                                  |
+| nome          | texto    | sim         | "Mano corbas"                                                                      |
+| email         | texto    | sim (único) | "vini@exemplo.com"                                                                 |
+| senha_hash    | texto    | sim         | "$2a$10$..."                                                                       |
+| foto_perfil   | texto    | não         | "https://segredo.supabase.co/storage/v1/object/public/segredo/hash_longo_vini.jpg" |
+| data_criacao  | data/hora| sim         | 2025-08-20 14:30                                                                   |
 
 #### Post
 
@@ -129,7 +117,7 @@ Critérios de aceite:
 - Um Usuario tem muitos Posts (1→N).  
 - Um Post pertence a um Usuario (N→1).  
 - Um Usuario pode seguir muitos outros (N→N via Seguidor).  
-- Para manter o anonimato do usuário, FraseAnonima não se relaciona com outras entidades.  
+- Um usuário pode ter várias Frases Anonimas, embora o app omita os donos de cada frase
 
 ### 9.4 Modelagem no PostgreSQL
 
@@ -175,34 +163,49 @@ CREATE TABLE IF NOT EXISTS frase_anonima (
     id SERIAL PRIMARY KEY,
     texto VARCHAR(280) NOT NULL,
     data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_expiracao TIMESTAMP NOT NULL
+    data_expiracao TIMESTAMP NOT NULL,
+    usuario_id BIGINT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
+-- -> índices
+-- Índices para Post
+CREATE INDEX IF NOT EXISTS idx_post_usuario ON post(usuario_id);
+
+-- Índices para Seguidor
+CREATE INDEX IF NOT EXISTS idx_seguidor_id ON seguidor(seguidor_id);
+CREATE INDEX IF NOT EXISTS idx_seguido_id ON seguidor(seguido_id);
+
+-- Índice para FraseAnonima
+CREATE INDEX IF NOT EXISTS idx_frase_expiracao ON frase_anonima(data_expiracao);
+
 -- -> Inserções de Teste
--- primeiro usuario
-INSERT INTO public.usuario(
-	nome, email, senha_hash, foto_perfil, data_criacao)
-	VALUES ('Mano corbas', 'vini@exemplo.com', '$2a$10$...', '/uploads/perfis/vini.jpg', '2025-09-09 21:12');
+-- ======================
+-- Usuários iniciais
+-- ======================
+INSERT INTO usuario (nome, email, senha_hash, foto_perfil, data_criacao)
+VALUES
+  ('Mano corbas', 'vini@exemplo.com', '$2a$10$...', 'vini.png', '2025-09-09 21:12'),
+  ('Mano corbas2', 'vini2@exemplo.com', '$2a$10$...2', 'vini2.png', '2025-09-09 21:22');
 
--- segundo usuario
-INSERT INTO public.usuario(
-	nome, email, senha_hash, foto_perfil, data_criacao)
-	VALUES ('Mano corbas2', 'vini2@exemplo.com', '$2a$10$...2', '/uploads/perfis/vini2.jpg', '2025-09-09 21:22');
+-- ======================
+-- Relação de seguidores
+-- ======================
+INSERT INTO seguidor (seguidor_id, seguido_id)
+VALUES (2, 1);
 
--- Usuario 2 agora segue o usuario 1
-INSERT INTO public.seguidor(
-	seguidor_id, seguido_id)
-	VALUES (2, 1);
+-- ======================
+-- Posts iniciais
+-- ======================
+INSERT INTO post (usuario_id, texto, data_criacao)
+VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
 
--- primeiro post
-INSERT INTO public.post(
-	usuario_id, texto, data_criacao)
-	VALUES (2, 'PBZCHGNQBERF FNB YRTNVF', NOW());
+-- ======================
+-- Frases anônimas
+-- ======================
+INSERT INTO frase_anonima (texto, data_criacao, data_expiracao, usuario_id)
+VALUES ('So sei que nada sei', NOW(), '2026-01-01', 1);
 
--- frase anonima
-INSERT INTO public.frase_anonima(
-	texto, data_criacao, data_expiracao)
-	VALUES ('So sei que nada sei', NOW(), '2026-01-01');
 	
 -- TESTE:
 -- retorna o nome e todos os posts de
@@ -229,6 +232,7 @@ Antes de rodar, certifique-se de ter instalado:
 - **Maven**
 - **PostgreSQL** (se não usar Docker)
 - **Git**
+- **Docker** (Opcional)
 
 ### 10.2 Clonar o repositório
 ```bash
@@ -257,8 +261,19 @@ Rodar com spring boot
 .\mvnw spring-boot:run
 ```
 
+#### Usando docker:
+Certifique-se de estar na raíz do projeto, onde estão localizados o Dockerfile e o docker-compose, e rode no terminal
+```bash
+docker compose up --build
+```
+
 ### 10.5 Documentação 
 Se tudo ocorrer corretamente, você poderá acessar a documentação da api em 
 ```
 http://localhost:8080/swagger-ui.html
 ```
+
+## Agradecimentos
+Obrigado por dedicar seu tempo para conhecer este projeto.  
+Contribuições, feedbacks e discussões são parte fundamental do crescimento da MicroTx — fique à vontade   
+para abrir issues, sugerir melhorias ou participar das próximas   iterações.  
