@@ -1,0 +1,39 @@
+erDiagram
+    %% Entidades
+    USUARIO {
+        int id PK
+        string nome
+        string email
+        string senha_hash
+        string foto_perfil
+        datetime data_criacao
+    }
+
+    POST {
+        int id PK
+        int usuario_id FK
+        string texto
+        datetime data_criacao
+    }
+
+    SEGUIDOR {
+        int id PK
+        int seguidor_id FK
+        int seguido_id FK
+    }
+
+    FRASE_ANONIMA {
+        int id PK
+        string texto
+        datetime data_criacao
+        datetime data_expiracao
+        bigint usuario_id FK
+    }
+
+    %% Relacionamentos
+    USUARIO ||--o{ POST : "publica (1:N)"
+    USUARIO ||--o{ FRASE_ANONIMA : "cria (1:N)"
+    
+    %% Relacionamento N:N de seguidores (Auto-relacionamento)
+    USUARIO ||--o{ SEGUIDOR : "segue (origem)"
+    USUARIO ||--o{ SEGUIDOR : "é seguido (destino)"

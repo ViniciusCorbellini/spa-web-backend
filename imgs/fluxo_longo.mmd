@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    actor U as Usuário
+    participant App as Sistema (Front/Back)
+    participant DB as Banco de Dados
+
+    %% 1. Login
+    U->>App: Faz Login
+    App->>DB: Verifica Credenciais
+    DB-->>App: OK
+    App-->>U: Redireciona para Home
+
+    %% 2. Visita Perfil
+    U->>App: Clica em "Meu Perfil"
+    App->>DB: SELECT * FROM usuario/posts...
+    DB-->>App: Retorna dados
+    App-->>U: Renderiza Página de Perfil
+
+    %% 3 e 4. Cria Post no Perfil
+    U->>App: Cria Novo Post
+    App->>DB: INSERT INTO post...
+    DB-->>App: Salvo com sucesso
+    App-->>U: Mostra novo post na lista
+
+    %% 5 e 6. Atualiza Foto
+    U->>App: Upload Nova Foto de Perfil
+    App->>DB: UPDATE usuario SET foto_perfil...
+    DB-->>App: Atualizado
+    App-->>U: Recarrega Perfil com Foto Nova

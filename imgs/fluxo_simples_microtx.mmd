@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    actor U as Usuário
+    participant App as Sistema (Front/Back)
+    participant DB as Banco de Dados
+
+    %% Passo 1
+    alt Acesso
+        U->>App: Realiza Cadastro
+    else Login
+        U->>App: Faz Login
+    end
+    
+    App-->>U: Autenticação OK
+
+    %% Passo 2 e 3
+    alt Conteúdo
+        U->>App: Cria Post
+        App->>DB: INSERT INTO post...
+    else Frase Anônima
+        U->>App: Cria Frase Temporária
+        App->>DB: INSERT INTO frase_anonima...
+    end
+    
+    DB-->>App: Confirmação de Salvamento
+
+    %% Passo 4
+    App-->>U: Atualiza Timeline (Feed)

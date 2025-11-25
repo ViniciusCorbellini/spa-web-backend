@@ -34,9 +34,11 @@ Validação (viabilidade): medir no protótipo com 30 ações; meta: ≥27 de 30
 ## 6) Fluxo principal e primeira fatia
 **Fluxo principal (curto):**  
 1) Usuário se cadastra ou faz login → 2) Cria post ou frase temporária → 3) Sistema salva no banco → 4) Timeline mostra posts
+![Fluxo Principal](imgs/fluxo_simples_microtx.png)
 
 **Fluxo secundário (longo):**  
 1) Usuário faz login → 2) Visita sua página de perfil → 3) Cria novos posts → 4) Banco salva os posts → 5) usuário atualiza sua foto de perfil → 6) sistema salva a nova foto e a mostra no perfil do usuário
+![Fluxo Secundário](imgs/fluxo_longo.png)
 
 **Primeira fatia vertical (escopo mínimo):**  
 Inclui: cadastro/login, criar post, listar posts
@@ -46,7 +48,7 @@ Critérios de aceite:
 - Cadastro → usuário pode logar em seguida
 
 ## 7) Esboços de telas do sistema (wireframes)
-![Protótipo das telas](img_prototipo_sist.png)
+![Protótipo das telas](imgs/img_prototipo_sist.png)
 
 ## 8) Tecnologias
 
@@ -111,6 +113,7 @@ Critérios de aceite:
 | texto          | texto     | sim         | "Só sei que nada sei" |
 | data_criacao   | data/hora | sim         | 2025-08-20 15:00      |
 | data_expiracao | data/hora | sim         | 2025-08-21 15:00      |
+| usuario_id     | número    | sim         | 1                     |
 
 ### 9.3 Relações entre entidades
 
@@ -118,6 +121,8 @@ Critérios de aceite:
 - Um Post pertence a um Usuario (N→1).  
 - Um Usuario pode seguir muitos outros (N→N via Seguidor).  
 - Um usuário pode ter várias Frases Anonimas, embora o app omita os donos de cada frase
+
+![Relacionamentos](imgs/diagrama_relacionamentos_microtx.png)
 
 ### 9.4 Modelagem no PostgreSQL
 
