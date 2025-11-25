@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,21 +47,15 @@ public class ImagemService {
     }
 
     public void deletarImagem(String filename) {
-        // Caso o filename seja uma URL completa, extrai somente o path após /public/
-        if (filename.startsWith("http")) {
-            int index = filename.indexOf("/public/");
-            if (index != -1) {
-                filename = filename.substring(index + "/public/".length());
-            }
-        }
+        // Limpa a url pra extrair o nome real do arquivo
+        filename = extractFilename(filename);
 
-        // Supabase exige array JSON mesmo para deletar um único arquivo
-        List<String> files = List.of(filename);
-
-        ( // casting
-            (RequestBodySpec) client.delete().uri("/object/" + bucket) // igual ao upload, baseUrl já está no client
-        ) 
-                .bodyValue(files)
+        // Requisição DELETE com Body
+        // Usa .method(HttpMethod.DELETE) em vez de .delete() para permitir o bodyValue
+        client.method(HttpMethod.DELETE)
+                .uri("/object/" + bucket)
+                .header("Content-Type", "application/json") // exigência do supa
+                .bodyValue(List.of(filename)) // Envia ["nome_arquivo.png"]
                 .retrieve()
                 .toBodilessEntity()
                 .block();
@@ -68,5 +63,36 @@ public class ImagemService {
 
     public String getPublicUrl(String filename) {
         return projectUrl + "/storage/v1/object/public/" + bucket + "/" + filename;
+    }
+
+    public String extractFilename(String filename) {
+        if (!filename.startsWith("http")) {
+            return filename;
+        }
+
+        String pathToRemove = "/public/" + bucket + "/";
+        int index = filename.indexOf(pathToRemove);
+
+        if (index != -1) {
+            return filename.substring(index + pathToRemove.length());
+        }
+
+        // Fallback caso a URL não tenha o formato esperado, tentamos limpar só o
+        // /public/
+        // mas isso evita enviar "bucket/arquivo.png"
+        int publicIndex = filename.indexOf("/public/");
+
+        if (publicIndex == -1) {
+            return filename;
+        }
+
+        filename = filename.substring(publicIndex + "/public/".length());
+        
+        // Se o bucket ainda estiver no início, removemos
+        if (filename.startsWith(bucket + "/")) {
+            filename = filename.substring((bucket + "/").length());
+        }
+
+        return filename;
     }
 }
