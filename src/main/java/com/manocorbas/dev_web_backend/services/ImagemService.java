@@ -1,6 +1,7 @@
 package com.manocorbas.dev_web_backend.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -50,12 +51,15 @@ public class ImagemService {
         // Limpa a url pra extrair o nome real do arquivo
         filename = extractFilename(filename);
 
+        Map<String, List<String>> body = Map.of("prefixes", List.of(filename));
+
         // Requisição DELETE com Body
         // Usa .method(HttpMethod.DELETE) em vez de .delete() para permitir o bodyValue
         client.method(HttpMethod.DELETE)
                 .uri("/object/" + bucket)
                 .header("Content-Type", "application/json") // exigência do supa
-                .bodyValue(List.of(filename)) // Envia ["nome_arquivo.png"]
+                .bodyValue(body) // Envia { "prefixes": ["string"] } 
+                // ^^^ necessário conforme a doc em https://supabase.github.io/storage/#/object/delete_object__bucketName_
                 .retrieve()
                 .toBodilessEntity()
                 .block();
