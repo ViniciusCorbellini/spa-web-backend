@@ -11,6 +11,8 @@ sequenceDiagram
         U->>App: Faz Login
     end
     
+    App-->>DB: select * from usuario
+    DB-->>App: usuario ...
     App-->>U: Autenticação OK
 
     %% Passo 2 e 3
