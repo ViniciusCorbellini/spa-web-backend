@@ -1,0 +1,33 @@
+graph TD
+    %% Estilos
+    classDef browser fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef cloud fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+    classDef db fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef storage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph Client [Cliente / Navegador]
+        Browser("💻 Navegador do Usuário<br/>(Acessa viniciuscorbellini.github.io)"):::browser
+    end
+
+    subgraph Cloud [Nuvem / Servidores]
+        FrontHost("🌐 GitHub Pages<br/>(Hospedagem Estática)"):::cloud
+        BackHost("⚙️ Backend API<br/>(Render.com)"):::cloud
+        Supabase("📷 Supabase Storage<br/>(Bucket de Fotos)"):::storage
+        Database("🗄️ PostgreSQL<br/>(Database Service)"):::db
+    end
+
+    %% Relacionamentos
+    Browser -- "HTTPS / HTML, JS, CSS (Gerenciados pelo React)" --> FrontHost
+    Browser -- "HTTPS / JSON (REST API)" --> BackHost
+    
+    BackHost -- "JDBC (TCP)" --> Database
+    BackHost -- "HTTPS / API <br> (Usando WebClient)" --> Supabase
+
+    %% Notas de fluxo
+    note1[Frontend consome API - Backend]
+    note2[Backend gerencia dados e arquivos - postgres e supabase]
+    
+    style note1 fill:#fff,stroke:#333,stroke-dasharray: 5 5
+    style note2 fill:#fff,stroke:#333,stroke-dasharray: 5 5
+
+    

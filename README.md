@@ -65,7 +65,10 @@ Critérios de aceite:
 - **Acesso ao BD:** Spring Data JPA (Hibernate)
 - **Migrações do Banco de Dados:** Liquibase
 - **Segurança:** Spring Security com autenticação via Token JWT
-- **Deploy do back-end:** Ambos no Render (api em um container docker)
+- **Deploy do back-end:** Ambos no Render (api em um container docker)  
+  
+Integração das tecnologias  
+![Protótipo das telas](imgs/diagrama_integracao.png)
 
 ## 9) Plano de Dados
 
