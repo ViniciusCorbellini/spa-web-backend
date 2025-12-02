@@ -23,6 +23,7 @@ public class ApplicationConfig {
     /**
      * Define o provedor de autenticação.
      * O SecurityConfig injetará este bean.
+     * Precisamos definir esses beans pra não quebrar a cadeia de autenticação
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {

@@ -1,6 +1,7 @@
 package com.manocorbas.dev_web_backend.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -54,9 +55,16 @@ public class JwtService {
                 .getPayload(); // 5. NOVO MÉTODO: getPayload()
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token) {
+        try {
+            // parse assina e valida o token
+            extractAllClaims(token); 
+            // só checamos expiração, a assinatura já foi verificada
+            return !isTokenExpired(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            // token inválido, corrompido ou assinatura errada
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {

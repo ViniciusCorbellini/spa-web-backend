@@ -88,10 +88,11 @@ public class SecurityConfig {
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setExposedHeaders(Arrays.asList("Authorization"));
 		configuration.setAllowCredentials(true);
-		configuration.setMaxAge(3600L);
+		configuration.setMaxAge(3600L); // Tempo máximo de preflight que o navegador pode cachear 
+		// ^^^ preflight: OPTIONS
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // 'roteador' do cors
+		source.registerCorsConfiguration("/**", configuration); // aplica o cors para todas as rotas da aplicação
 		return source;
 	}
 }

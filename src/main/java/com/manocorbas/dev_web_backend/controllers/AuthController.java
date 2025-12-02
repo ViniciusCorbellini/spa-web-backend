@@ -97,10 +97,8 @@ public class AuthController {
             }
 
             String token = header.substring(7);
-            String username = jwtService.extractUsername(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            if (!jwtService.isTokenValid(token, userDetails)) {
+            if (!jwtService.isTokenValid(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             return ResponseEntity.ok().build();
