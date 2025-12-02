@@ -32,12 +32,16 @@ public class ImagemService {
 
             client.put()
                     .uri("/object/" + bucket + "/" + filename)
-                    .header("x-upsert", "true")
+                    .header("x-upsert", "true") // se um arquivo com o mesmo nome já existir no bucket, ele será sobrescrito
                     .contentType(MediaType.parseMediaType(file.getContentType()))
                     .bodyValue(file.getBytes())
-                    .retrieve()
-                    .toBodilessEntity()
+                    .retrieve() // inicia a requisição
+                    .toBodilessEntity() // espera uma resposta sem corpo
                     .block();
+            // Obs:   ^^^^
+            // Como o WebClient é reativo por padrão, o .block() transforma essa operação 
+            // reativa em uma chamada síncrona, fazendo com que o código espere até que a 
+            // resposta do Supabase seja recebida antes de prosseguir.
 
             return getPublicUrl(filename);
 

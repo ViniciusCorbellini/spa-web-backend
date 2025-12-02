@@ -34,6 +34,17 @@ public class SecurityConfig {
 		this.authenticationProvider = authenticationProvider;
 	}
 
+	//Cadeia de filtros:
+	// 	Requisição chega;
+	// 	CORS preflight/headers são verificados (se aplicável);
+	// 	jwtAuthFilter roda primeiro:
+	// 		Se houver Authorization: Bearer <token>, valida o token;
+	// 		Se token ok: cria Authentication e coloca no SecurityContext;
+	// 		Se não: apenas segue, sem autenticar (ou pode lançar/exigir);
+	// 	Outros filtros do Spring (p.ex. UsernamePasswordAuthenticationFilter) podem rodar — mas se o SecurityContext já tiver autenticação válida, a autorização 
+	// 	já permite acessar endpoints protegidos;
+	// 	Controle de autorização: as regras de requestMatchers e anyRequest().authenticated() são aplicadas;
+	// 	Se a rota exige autenticação e não existe Authentication válida: retorna 401;
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		String[] publicEndpoints = {
@@ -74,7 +85,7 @@ public class SecurityConfig {
 		// por conta disso, usarei setAllowedOriginPatterns ao invés de setAllowedOrigins pra enganar o navegador
 
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		configuration.setAllowedHeaders(Arrays.asList("*")); // Ou liste explicitamente: "Authorization", "Content-Type"
+		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setExposedHeaders(Arrays.asList("Authorization"));
 		configuration.setAllowCredentials(true);
 		configuration.setMaxAge(3600L);

@@ -44,16 +44,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         username = jwtService.extractUsername(jwt);
 
+        // SecurityContextHolder é onde o Spring guarda os dados da autenticação da requisição atual.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            
             if (jwtService.isTokenValid(jwt, userDetails)) {
+                // Objeto da autenticação no spring sec - representa um usuário autenticado 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
                                 userDetails.getAuthorities()
                         );
+
+                // Injeta os detalhes da requisição no token
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // Coloca a autenticação no contexto
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
