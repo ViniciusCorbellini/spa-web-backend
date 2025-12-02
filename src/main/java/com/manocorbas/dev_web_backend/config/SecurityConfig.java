@@ -58,6 +58,7 @@ public class SecurityConfig {
 				.build();
 	}
 
+	/* Obs: o CorsConfig foi apagado, visto que a configuração do spring sec abaixo sobrescreve essa classe */
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
