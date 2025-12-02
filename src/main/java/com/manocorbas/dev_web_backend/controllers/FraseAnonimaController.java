@@ -9,12 +9,11 @@ import com.manocorbas.dev_web_backend.services.FraseAnonimaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.Hidden;
-
 import java.util.List;
 
-@Hidden
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/frases")
 public class FraseAnonimaController {

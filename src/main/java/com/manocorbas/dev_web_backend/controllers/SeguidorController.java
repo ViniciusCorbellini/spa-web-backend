@@ -10,9 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-@Hidden
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/seguidores")
 public class SeguidorController {

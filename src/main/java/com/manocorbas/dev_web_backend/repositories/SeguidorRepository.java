@@ -28,9 +28,9 @@ public interface SeguidorRepository extends JpaRepository<Seguidor, Long> {
     @Query("SELECT s.seguido.id FROM Seguidor s WHERE s.seguidor.id = :usuarioId")
     List<Long> findFollowingIdsByUsuarioId(@Param("usuarioId") Long usuarioId);
 
-    // 🔥 Conta quantos seguem este usuário
+    // Conta quantos seguem este usuário
     long countBySeguidoId(Long seguidoId);
 
-    // 🔥 Conta quantos usuários ele segue
+    // Conta quantos usuários ele segue
     long countBySeguidorId(Long seguidorId);
 }
